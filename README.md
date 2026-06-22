@@ -1,62 +1,177 @@
-# AI Course Studio
+# AI Course Command Center V6 · INF 125
 
-AI Course Studio is a polished, static front-end prototype for an AI-powered higher education course creation and quality platform. It demonstrates how faculty, instructional designers, academic leaders, and accreditation teams could design, analyze, improve, preserve, and export university courses from one workspace.
+This is a static GitHub Pages front end for **AI Course Command Center V6** for **INF 125: Social Media and Society**.
 
-> Tagline: “Create, improve, and manage entire university courses with AI.”
+The intended production architecture is:
 
-## Features
+- **GitHub Pages**: browser front end only
+- **Google Sheets**: course workbook/database
+- **Google Apps Script Web App**: secure backend/proxy
+- **Gemini API key**: stored only in Apps Script Script Properties
+- **Canvas API token**: stored only in Apps Script Script Properties
+- **localStorage**: fallback/cache and offline backup
 
-- Portfolio dashboard with course status, metrics, quick actions, and recent AI activity
-- AI-assisted Course Architect with generated outcomes, learning architecture, and competencies
-- Course content generator with editable generation settings and weekly module previews
-- Mock Canvas export workflow and package validation
-- Student workload analysis with stacked bar charts and recommendations
-- Program-to-assessment alignment matrix and gap detection
-- Course health scores for engagement, accessibility, workload, and accreditation readiness
-- Faculty review workflow, comments, approvals, roles, and version history
-- Institutional Memory repository, course decision timeline, AI Course Historian, and faculty handoff reports
-- Accreditation readiness tracking and generated report previews
-- Responsive settings and institutional configuration screens
+No Gemini API keys or Canvas API tokens are stored in this repository or in browser JavaScript.
 
-All data and AI responses are simulated locally in the browser.
+## Workbook-aligned sections
 
-## Run locally
+The app aligns to these Google Sheet tabs:
 
-No build step, package manager, or API key is required.
+- `Dashboard`
+- `Course_Config`
+- `V6_Settings`
+- `Weeks`
+- `Course_Calendar`
+- `Activities`
+- `Assessments`
+- `Learning_Objectives`
+- `AI_Drafts`
+- `Canvas_Item_Map`
+- `Publishing_Log`
+- `Faculty_Signup`
+- `Faculty_Feedback`
+- `Lists`
 
-1. Download or clone this repository.
-2. Open `index.html` directly in a browser.
+The tabs and columns are the source of truth for the command center UI.
 
-For a simple local web server, run:
+## How the app connects to Google Sheets
+
+1. Deploy the Apps Script starter as a Web App.
+2. Open the GitHub Pages app.
+3. Go to **Settings**.
+4. Enter:
+   - Apps Script Web App URL
+   - Course ID
+   - Canvas Course ID
+   - Sync mode: `Read Only`, `Draft Only`, or `Full Publish`
+   - Enable local cache: `Yes` or `No`
+5. Click **Save Settings**.
+6. Click **Sync from Google Sheet**.
+
+The app tries to load from Apps Script first when a URL is configured. If Apps Script is unavailable, it shows a warning and uses the localStorage cache.
+
+## Deploy Apps Script as a Web App
+
+1. Create or open a Google Sheet with the workbook tab names listed above.
+2. Open **Extensions → Apps Script**.
+3. Paste the contents of `apps-script-starter.js`.
+4. Set `SPREADSHEET_ID` to your Google Sheet ID.
+5. In Apps Script, open **Project Settings → Script Properties**.
+6. Add properties as needed:
+   - `GEMINI_API_KEY`
+   - `CANVAS_API_TOKEN`
+   - `CANVAS_BASE_URL`
+7. Deploy as a **Web App**.
+8. Copy the Web App URL into the GitHub Pages app Settings section.
+
+## Apps Script API contract
+
+See `APPS_SCRIPT_CONTRACT.md` for the expected request and response shapes for:
+
+- `getSheetData`
+- `saveSheetRow`
+- `updateSheetRow`
+- `deleteSheetRow`
+- `generateWithGemini`
+- `publishToCanvas`
+- `getCanvasStatus`
+- `logPublishingAction`
+
+All browser calls go to the Apps Script Web App URL only.
+
+## Gemini generation workflow
+
+The **Generate Content** page lets the instructor select:
+
+- Week
+- Source section: `Weeks`, `Activities`, `Assessments`, or `Learning_Objectives`
+- Output format: Canvas Page, Assignment, Discussion, Quiz, Rubric, or Announcement
+- Tone
+- Prompt
+
+The browser sends a payload to Apps Script:
+
+```json
+{
+  "action": "generateWithGemini",
+  "courseId": "INF125",
+  "sectionName": "Weeks",
+  "selectedRows": [],
+  "prompt": "Create INF 125 content...",
+  "outputType": "Canvas Page"
+}
+```
+
+Apps Script should call Gemini securely and return draft HTML, summary, prompt snapshot, and generation status. The browser saves the returned draft into `AI_Drafts`.
+
+If Apps Script is unavailable, the app creates a clearly labeled local fallback draft so the UI can still be tested.
+
+## Canvas publishing workflow
+
+Approved AI Drafts can be sent to Canvas through Apps Script. Publishing is allowed only when:
+
+- `Review Status` is `Approved`
+- `Publish Status` is not already `Sent to Canvas` or `Published`
+
+The browser sends:
+
+```json
+{
+  "action": "publishToCanvas",
+  "canvasCourseId": "12345",
+  "canvasItemType": "Assignment",
+  "canvasTitle": "Applied Platform Analysis 1",
+  "draftHtml": "<p>...</p>",
+  "week": 1,
+  "moduleName": "Week 1"
+}
+```
+
+Apps Script handles the Canvas API securely. On success, the app updates:
+
+- `AI_Drafts`
+- `Canvas_Item_Map`
+- `Publishing_Log`
+
+If Apps Script is unavailable, the app performs a clearly labeled local simulation for testing.
+
+## Spreadsheet import backup
+
+The app keeps the **Spreadsheet Import** section as a backup path. It supports:
+
+- `.xlsx`
+- `.xls`
+- `.csv`
+
+Excel parsing uses SheetJS from a browser CDN with a fallback CDN URL. CSV parsing is done locally in JavaScript. Imported data is saved to localStorage and can then be pushed to Google Sheets through Apps Script.
+
+## localStorage fallback/cache
+
+The app stores only non-secret settings and cached workbook data locally:
+
+- Apps Script Web App URL
+- Course ID
+- Canvas Course ID
+- Sync mode
+- Cache setting
+- Cached workbook rows
+
+Use **Download Backup JSON** to save a local copy and **Restore Backup JSON** to reload it.
+
+## Running locally
+
+No npm install is required:
 
 ```bash
 python3 -m http.server 8000
 ```
 
-Then visit `http://localhost:8000`.
+Then open `http://localhost:8000/`.
 
-## Deploy to GitHub Pages
+## GitHub Pages
 
-1. Push these files to the root of a GitHub repository.
-2. In the repository, open **Settings → Pages**.
-3. Under **Build and deployment**, choose **Deploy from a branch**.
-4. Select the `main` branch and `/ (root)` folder.
-5. Save. GitHub will provide the public Pages URL after deployment.
+Publish the repository root with GitHub Pages. The app uses relative paths and browser APIs only, so it remains static-hosting compatible.
 
-Navigation uses URL hashes, so every screen works on GitHub Pages without server-side routing or reload errors.
+## Security warning
 
-## Prototype notes
-
-This is a static stakeholder prototype built with plain HTML, CSS, and JavaScript. It does not transmit form data, call paid AI services, store API keys, or connect to Canvas. The Canvas integration, AI generation, report generation, and institutional search experiences use realistic mock data.
-
-## Future backend and API roadmap
-
-- Add secure authentication and role-based access
-- Connect to institution-approved LLM providers through a protected server
-- Add database-backed course, artifact, version, and comment storage
-- Integrate Canvas through OAuth and supported Canvas APIs
-- Add document ingestion, semantic search, and source citations for Institutional Memory
-- Support real-time collaboration, notifications, and approval workflows
-- Generate Common Cartridge exports and accessible document packages
-- Add analytics pipelines for student outcomes and course health
-- Implement security, privacy, retention, and governance controls for institutional data
+Never commit Gemini or Canvas secrets to this repository. Never place API keys or Canvas tokens in `index.html`, `app.js`, or any GitHub Pages asset. Use Apps Script Script Properties and server-side UrlFetchApp calls.
