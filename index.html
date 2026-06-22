@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AI Course Studio — an AI-powered course design and academic quality platform.">
+  <title>AI Course Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-mark">A</div>
+        <div><strong>AI Course</strong><span>Studio</span></div>
+      </div>
+      <div class="workspace-switcher">
+        <span class="workspace-logo">NR</span>
+        <span><small>Northbridge University</small><strong>Academic Affairs</strong></span>
+        <span>⌄</span>
+      </div>
+      <nav class="nav" aria-label="Primary navigation">
+        <p class="nav-label">Workspace</p>
+        <button class="nav-link active" data-page="dashboard"><span>⌂</span> Dashboard</button>
+        <button class="nav-link" data-page="architect"><span>◇</span> Course Architect</button>
+        <button class="nav-link" data-page="generator"><span>✦</span> AI Course Generator</button>
+        <button class="nav-link" data-page="canvas"><span>↗</span> Canvas Export</button>
+        <p class="nav-label">Quality & insight</p>
+        <button class="nav-link" data-page="workload"><span>▥</span> Workload Analyzer</button>
+        <button class="nav-link" data-page="alignment"><span>⌘</span> Alignment Engine</button>
+        <button class="nav-link" data-page="health"><span>♡</span> Course Health</button>
+        <p class="nav-label">Institution</p>
+        <button class="nav-link" data-page="collaboration"><span>♧</span> Faculty Collaboration</button>
+        <button class="nav-link" data-page="memory"><span>◉</span> Institutional Memory <b class="new-badge">AI</b></button>
+        <button class="nav-link" data-page="accreditation"><span>✓</span> Accreditation</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <button class="nav-link" data-page="settings"><span>⚙</span> Settings</button>
+        <div class="profile">
+          <div class="avatar">DR</div>
+          <div><strong>Dr. Dana Reed</strong><small>Dean, College of Arts</small></div>
+          <span>•••</span>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="menu-btn" id="menuBtn" aria-label="Toggle menu">☰</button>
+        <div class="breadcrumb"><span id="breadcrumb">Dashboard</span><b>Spring 2027</b></div>
+        <div class="top-actions">
+          <button class="icon-btn" aria-label="Search">⌕</button>
+          <button class="icon-btn notification" aria-label="Notifications">♢<i></i></button>
+          <button class="primary-btn compact" data-page-jump="architect">+ New course</button>
+        </div>
+      </header>
+
+      <div class="content">
+        <!-- Dashboard -->
+        <section class="page active" id="dashboard">
+          <div class="page-heading dashboard-heading">
+            <div><p class="eyebrow">MONDAY, JUNE 22</p><h1>Good morning, Dana.</h1><p>Here’s what’s happening across your academic portfolio.</p></div>
+            <div class="ai-status"><i></i><span>AI workspace online<small>All systems ready</small></span></div>
+          </div>
+
+          <div class="metric-grid">
+            <article class="metric-card"><div class="metric-icon purple">▱</div><span>Total courses</span><strong>24</strong><small><b>↑ 3</b> this academic year</small></article>
+            <article class="metric-card"><div class="metric-icon gold">◷</div><span>In progress</span><strong>8</strong><small>3 awaiting review</small></article>
+            <article class="metric-card"><div class="metric-icon green">✓</div><span>Canvas-ready</span><strong>14</strong><small><b>58%</b> of portfolio</small></article>
+            <article class="metric-card"><div class="metric-icon pink">!</div><span>Accreditation gaps</span><strong>3</strong><small><em>Needs attention</em></small></article>
+          </div>
+
+          <div class="dashboard-grid">
+            <div class="panel portfolio-panel">
+              <div class="panel-header"><div><h2>Course portfolio</h2><p>Progress across active course development</p></div><button class="text-btn" data-page-jump="health">View all →</button></div>
+              <div class="course-list">
+                <div class="course-row"><span class="course-code lavender">PSY</span><div class="course-info"><strong>PSY 301 · Cognitive Psychology</strong><small>Dr. Maya Chen · Fall 2026</small><div class="progress"><i style="width:84%"></i></div></div><b>84%</b><span class="status success">Canvas ready</span><button>•••</button></div>
+                <div class="course-row"><span class="course-code blue">BUS</span><div class="course-info"><strong>BUS 442 · Strategic Leadership</strong><small>Prof. James Wilson · Fall 2026</small><div class="progress"><i style="width:67%"></i></div></div><b>67%</b><span class="status warning">In review</span><button>•••</button></div>
+                <div class="course-row"><span class="course-code peach">NUR</span><div class="course-info"><strong>NUR 215 · Clinical Foundations</strong><small>Dr. Amara Okafor · Spring 2027</small><div class="progress"><i style="width:41%"></i></div></div><b>41%</b><span class="status neutral">Building</span><button>•••</button></div>
+                <div class="course-row"><span class="course-code mint">ENG</span><div class="course-info"><strong>ENG 110 · Academic Writing</strong><small>Dr. Luis Rivera · Spring 2027</small><div class="progress"><i style="width:22%"></i></div></div><b>22%</b><span class="status neutral">Draft</span><button>•••</button></div>
+              </div>
+            </div>
+            <div class="panel ai-activity">
+              <div class="panel-header"><div><h2>Recent AI activity</h2><p>Your studio at work</p></div><span class="live-pill">LIVE</span></div>
+              <div class="activity-list">
+                <div><span class="spark">✦</span><p><strong>Rubric enhanced</strong><small>BUS 442 · Leadership Case Study</small><time>8 min ago</time></p></div>
+                <div><span class="spark">✦</span><p><strong>Alignment gap detected</strong><small>PSY 301 · Outcome 4</small><time>32 min ago</time></p></div>
+                <div><span class="spark">✦</span><p><strong>Module generated</strong><small>NUR 215 · Week 6</small><time>1 hr ago</time></p></div>
+                <div><span class="spark">✦</span><p><strong>Workload balanced</strong><small>ENG 110 · Weeks 4–8</small><time>Yesterday</time></p></div>
+              </div>
+            </div>
+          </div>
+
+          <h2 class="section-title">What would you like to do?</h2>
+          <div class="quick-grid">
+            <button class="quick-card" data-page-jump="architect"><span class="quick-icon purple">✦</span><div><strong>Create a new course</strong><small>Build a complete course from an idea</small></div><b>→</b></button>
+            <button class="quick-card" data-page-jump="health"><span class="quick-icon pink">↗</span><div><strong>Improve a course</strong><small>Run an AI-powered course review</small></div><b>→</b></button>
+            <button class="quick-card" data-page-jump="canvas"><span class="quick-icon blue">C</span><div><strong>Import from Canvas</strong><small>Bring an existing course into Studio</small></div><b>→</b></button>
+            <button class="quick-card" data-page-jump="accreditation"><span class="quick-icon gold">✓</span><div><strong>Accreditation report</strong><small>Generate a standards-ready report</small></div><b>→</b></button>
+          </div>
+        </section>
+
+        <!-- Architect -->
+        <section class="page" id="architect">
+          <div class="page-heading"><div><p class="eyebrow">DESIGN</p><h1>Course Architect</h1><p>Turn the foundations of a course into a rigorous, aligned learning architecture.</p></div><span class="feature-chip">✦ AI-assisted design</span></div>
+          <div class="two-column">
+            <form class="panel form-panel" id="architectureForm">
+              <div class="panel-header"><div><h2>Course foundations</h2><p>Tell the studio what you’re building.</p></div><span class="step-count">Step 1 of 2</span></div>
+              <div class="form-grid">
+                <label class="wide">Course name<input id="courseName" value="Foundations of Digital Ethics"></label>
+                <label>Course code<input id="courseCode" value="PHI 245"></label>
+                <label>Department<select><option>Philosophy</option><option>Computer Science</option><option>Business</option></select></label>
+                <label>Credit hours<select><option>3 credits</option><option>4 credits</option></select></label>
+                <label>Modality<select><option>Hybrid</option><option>Online</option><option>In person</option></select></label>
+                <label>Term length<select><option>15 weeks</option><option>8 weeks</option></select></label>
+                <label>Course level<select><option>Undergraduate — 200</option><option>Undergraduate — 300</option><option>Graduate</option></select></label>
+                <label class="wide">Description<textarea id="courseDescription">An interdisciplinary study of ethical questions arising from artificial intelligence, data systems, and digital platforms.</textarea></label>
+                <label class="wide">Prerequisites<input value="ENG 110 or equivalent"></label>
+                <label>Student population<input value="Second-year undergraduates"></label>
+                <label>Program outcomes<input value="Critical reasoning, ethical analysis"></label>
+                <label class="wide">Accreditation standards<select><option>HLC — Teaching & Learning</option><option>Custom standards</option></select></label>
+              </div>
+              <button type="submit" class="primary-btn full">✦ Generate Course Architecture</button>
+            </form>
+            <div class="panel output-panel" id="architectureOutput">
+              <div class="empty-state"><span>◇</span><h3>Your architecture will appear here</h3><p>Complete the course foundations and let AI build an aligned starting point.</p></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Generator -->
+        <section class="page" id="generator">
+          <div class="page-heading"><div><p class="eyebrow">CREATE</p><h1>AI Course Generator</h1><p>Generate a coherent, editable course experience—week by week.</p></div></div>
+          <div class="generator-layout">
+            <aside class="panel generator-controls">
+              <h2>Generation settings</h2>
+              <label>Weeks / modules<input id="moduleCount" type="range" min="4" max="15" value="8"><span class="range-value"><b id="moduleCountValue">8</b> modules</span></label>
+              <label>Assignment style<select><option>Authentic & project-based</option><option>Academic & research-focused</option><option>Mixed format</option></select></label>
+              <label>Discussion frequency<select><option>Every other week</option><option>Weekly</option><option>Three per term</option></select></label>
+              <label>Assessment type<select><option>Portfolio + presentation</option><option>Exams + essays</option><option>Competency-based</option></select></label>
+              <label>AI tone<select><option>Engaging and scholarly</option><option>Concise and direct</option><option>Warm and conversational</option></select></label>
+              <button id="generateContentBtn" class="primary-btn full">✦ Generate Course Content</button>
+            </aside>
+            <div class="panel modules-panel" id="modulesOutput">
+              <div class="panel-header"><div><h2>Course sequence</h2><p>PHI 245 · Foundations of Digital Ethics</p></div><span class="status neutral">Not generated</span></div>
+              <div class="empty-state large"><span>✦</span><h3>Ready when you are</h3><p>Choose your settings and generate a complete course sequence in seconds.</p></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Canvas -->
+        <section class="page" id="canvas">
+          <div class="page-heading"><div><p class="eyebrow">INTEGRATE</p><h1>Canvas Export</h1><p>Prepare a clean, structured course package for your LMS.</p></div><span class="status warning">Prototype connection</span></div>
+          <div class="integration-hero panel">
+            <div class="integration-logos"><span class="studio-logo">A</span><i>→</i><span class="canvas-logo">C</span></div>
+            <div><h2>Studio to Canvas, without the busywork.</h2><p>Review every element, validate your structure, and prepare a publish-ready package.</p></div>
+          </div>
+          <div class="two-column canvas-grid">
+            <div class="panel form-panel">
+              <div class="panel-header"><div><h2>Connection details</h2><p>Credentials are never transmitted in this prototype.</p></div><span class="lock">⌾ Local only</span></div>
+              <label>Canvas institution URL<input value="https://northbridge.instructure.com"></label>
+              <label>Canvas API key<div class="input-action"><input type="password" value="prototype-key"><button type="button">Show</button></div></label>
+              <label>Canvas course ID<input value="48291"></label>
+              <div class="note">This preview does not contact Canvas or store credentials.</div>
+            </div>
+            <div class="panel export-panel">
+              <div class="panel-header"><div><h2>Export checklist</h2><p>Select content to include</p></div><button class="text-btn">Select all</button></div>
+              <div class="checklist">
+                <label><input type="checkbox" checked><span>▱</span><b>Modules</b><small>8 items</small></label>
+                <label><input type="checkbox" checked><span>□</span><b>Pages</b><small>24 items</small></label>
+                <label><input type="checkbox" checked><span>✓</span><b>Assignments</b><small>11 items</small></label>
+                <label><input type="checkbox" checked><span>♧</span><b>Discussions</b><small>6 items</small></label>
+                <label><input type="checkbox" checked><span>?</span><b>Quizzes</b><small>4 items</small></label>
+                <label><input type="checkbox" checked><span>▥</span><b>Rubrics</b><small>9 items</small></label>
+              </div>
+              <button id="canvasExportBtn" class="primary-btn full">Prepare Canvas Export →</button>
+              <div class="success-message" id="canvasSuccess">✓ <span><strong>Your course package is ready to publish to Canvas.</strong><small>Package validated · 62 items · 4.8 MB</small></span></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Workload -->
+        <section class="page" id="workload">
+          <div class="page-heading"><div><p class="eyebrow">ANALYZE</p><h1>Workload Analyzer</h1><p>See the course through your students’ calendars—not just your syllabus.</p></div><select class="course-select"><option>PSY 301 · Cognitive Psychology</option></select></div>
+          <div class="metric-grid workload-metrics">
+            <article class="metric-card"><span>Avg. weekly workload</span><strong>8.4<small> hrs</small></strong><p class="status success">Within target</p></article>
+            <article class="metric-card"><span>Reading load</span><strong>92<small> pages</small></strong><p class="status warning">12% above target</p></article>
+            <article class="metric-card"><span>Overloaded weeks</span><strong>2</strong><p class="status danger">Weeks 5 & 7</p></article>
+            <article class="metric-card"><span>Workload balance</span><strong>78<small>/100</small></strong><p class="status success">Good</p></article>
+          </div>
+          <div class="panel chart-panel">
+            <div class="panel-header"><div><h2>Estimated weekly student effort</h2><p>Hours by learning activity</p></div><div class="legend"><i class="read"></i> Reading <i class="assign"></i> Assignments <i class="video"></i> Video <i class="discuss"></i> Discussion</div></div>
+            <div class="bar-chart" id="workloadChart"></div>
+          </div>
+          <div class="recommendation-grid">
+            <article class="recommendation danger-card"><span>!</span><div><strong>Reduce Week 5 workload</strong><p>Estimated effort reaches 12.6 hours, exceeding the 9-hour target.</p><button>View week →</button></div></article>
+            <article class="recommendation idea-card"><span>✦</span><div><strong>Add active learning in Week 3</strong><p>The week is reading-heavy and may benefit from a short applied activity.</p><button>Generate activity →</button></div></article>
+            <article class="recommendation warning-card"><span>◷</span><div><strong>Rebalance due dates</strong><p>Major assignment deadlines cluster across Weeks 6 and 7.</p><button>See options →</button></div></article>
+          </div>
+        </section>
+
+        <!-- Alignment -->
+        <section class="page" id="alignment">
+          <div class="page-heading"><div><p class="eyebrow">ALIGN</p><h1>Alignment Engine</h1><p>Trace the line from institutional promise to student evidence.</p></div><button class="secondary-btn">Export matrix</button></div>
+          <div class="alignment-summary">
+            <div class="score-ring" style="--score:86"><span><strong>86</strong><small>Alignment score</small></span></div>
+            <div><h2>Strong overall alignment</h2><p>Most outcomes have clear instructional and assessment coverage. Three opportunities need attention.</p><div class="badge-row"><span class="status success">18 aligned</span><span class="status warning">2 weak</span><span class="status danger">1 gap</span></div></div>
+          </div>
+          <div class="panel table-panel">
+            <div class="panel-header"><div><h2>Outcome alignment matrix</h2><p>PHI 245 · Program-to-assessment traceability</p></div><button class="text-btn">Filter matrix ⌄</button></div>
+            <div class="table-wrap"><table>
+              <thead><tr><th>Program outcome</th><th>Course outcome</th><th>Module objectives</th><th>Assignments</th><th>Assessments</th><th>Rubrics</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td>PO1 Critical reasoning</td><td><span class="check">✓</span> CO1, CO3</td><td><span class="check">✓</span> 6 mapped</td><td><span class="check">✓</span> 3</td><td><span class="check">✓</span> 2</td><td><span class="check">✓</span> Complete</td><td><span class="status success">Strong</span></td></tr>
+                <tr><td>PO2 Ethical analysis</td><td><span class="check">✓</span> CO2, CO4</td><td><span class="check">✓</span> 8 mapped</td><td><span class="check">✓</span> 4</td><td><span class="warn">!</span> 1</td><td><span class="check">✓</span> Complete</td><td><span class="status warning">Weak assessment</span></td></tr>
+                <tr><td>PO3 Communication</td><td><span class="check">✓</span> CO5</td><td><span class="check">✓</span> 4 mapped</td><td><span class="check">✓</span> 2</td><td><span class="check">✓</span> 2</td><td><span class="warn">!</span> Partial</td><td><span class="status warning">Review</span></td></tr>
+                <tr><td>PO4 Civic responsibility</td><td><span class="danger-dot">×</span> Not mapped</td><td>—</td><td>—</td><td>—</td><td>—</td><td><span class="status danger">Accreditation risk</span></td></tr>
+              </tbody>
+            </table></div>
+          </div>
+        </section>
+
+        <!-- Health -->
+        <section class="page" id="health">
+          <div class="page-heading"><div><p class="eyebrow">MONITOR</p><h1>Course Health Dashboard</h1><p>A holistic view of quality, readiness, and student success risk.</p></div><select class="course-select"><option>BUS 442 · Strategic Leadership</option></select></div>
+          <div class="health-hero panel">
+            <div class="score-ring large-ring" style="--score:82"><span><strong>82</strong><small>Healthy course</small></span></div>
+            <div><span class="status success">Improving</span><h2>Strong foundation, with room to tune.</h2><p>This course is well aligned and accessible. Focus next on workload distribution and assessment coverage.</p></div>
+            <button class="primary-btn">✦ Run full AI review</button>
+          </div>
+          <div class="health-grid">
+            <article class="health-card"><span>Engagement score</span><strong>88</strong><div class="progress"><i style="width:88%"></i></div><small>Excellent activity variety</small></article>
+            <article class="health-card"><span>Assessment coverage</span><strong>74</strong><div class="progress amber"><i style="width:74%"></i></div><small>2 outcomes need evidence</small></article>
+            <article class="health-card"><span>Workload balance</span><strong>68</strong><div class="progress pink"><i style="width:68%"></i></div><small>Weeks 6–7 are clustered</small></article>
+            <article class="health-card"><span>Accessibility score</span><strong>93</strong><div class="progress green"><i style="width:93%"></i></div><small>Nearly WCAG-ready</small></article>
+            <article class="health-card"><span>Accreditation readiness</span><strong>84</strong><div class="progress"><i style="width:84%"></i></div><small>Evidence package is strong</small></article>
+            <article class="health-card"><span>Student success risk</span><strong>Low</strong><div class="progress green"><i style="width:91%"></i></div><small>Clear scaffolding detected</small></article>
+          </div>
+        </section>
+
+        <!-- Collaboration -->
+        <section class="page" id="collaboration">
+          <div class="page-heading"><div><p class="eyebrow">COLLABORATE</p><h1>Faculty Collaboration</h1><p>Bring the right academic voices into the course design process.</p></div><button id="requestReviewBtn" class="primary-btn">Request review</button></div>
+          <div class="collab-layout">
+            <div class="panel review-panel">
+              <div class="panel-header"><div><h2>Approval workflow</h2><p>BUS 442 · Version 3.2</p></div><span class="status warning">2 of 4 approved</span></div>
+              <div class="approval-flow">
+                <div class="approved"><span>MC</span><p><strong>Dr. Maya Chen</strong><small>Faculty owner</small></p><b>✓ Approved</b></div>
+                <div class="approved"><span>JW</span><p><strong>Jamie Wu</strong><small>Instructional designer</small></p><b>✓ Approved</b></div>
+                <div class="current"><span>RP</span><p><strong>Dr. Ravi Patel</strong><small>Department chair</small></p><b>Reviewing</b></div>
+                <div><span>DR</span><p><strong>Dr. Dana Reed</strong><small>Dean</small></p><b>Waiting</b></div>
+              </div>
+              <button id="approveBtn" class="secondary-btn full">Approve course</button>
+            </div>
+            <div class="panel comments-panel">
+              <div class="panel-header"><div><h2>Review conversation</h2><p>6 comments · 2 open</p></div><div class="avatar-stack"><span>MC</span><span>JW</span><span>RP</span><span>+2</span></div></div>
+              <div class="comment"><span class="avatar purple-bg">JW</span><div><p><strong>Jamie Wu</strong><time>Today, 9:14 AM</time></p><p>The Week 5 case study is excellent. I’d suggest adding a lower-stakes checkpoint before the final submission.</p><div class="comment-meta"><button>Reply</button><span class="status warning">Open</span></div></div></div>
+              <div class="comment"><span class="avatar blue-bg">RP</span><div><p><strong>Dr. Ravi Patel</strong><time>Yesterday, 3:42 PM</time></p><p>Outcome 4 now maps clearly to the final presentation. This resolves my earlier concern.</p><div class="comment-meta"><button>Reply</button><span class="status success">Resolved</span></div></div></div>
+              <div class="add-comment"><span class="avatar">DR</span><input id="commentInput" placeholder="Add a comment or @mention a colleague…"><button id="addCommentBtn" class="primary-btn compact">Send</button></div>
+            </div>
+          </div>
+          <div class="panel versions">
+            <div class="panel-header"><div><h2>Version history</h2><p>A complete, restorable record of course development</p></div><button class="text-btn">Compare versions</button></div>
+            <div class="version-row"><b>v3.2</b><span>Current</span><p>Assessment alignment and rubric revisions</p><small>Dr. Maya Chen · 2 hours ago</small></div>
+            <div class="version-row"><b>v3.1</b><p>Peer review changes</p><small>Jamie Wu · June 18</small></div>
+            <div class="version-row"><b>v3.0</b><p>Full course generation</p><small>AI Course Studio · June 12</small></div>
+          </div>
+        </section>
+
+        <!-- Institutional Memory -->
+        <section class="page" id="memory">
+          <div class="memory-heading">
+            <div><span class="feature-chip light">◉ Institutional intelligence</span><h1>Your institution remembers.<br><em>Now it can answer.</em></h1><p>Preserve the reasoning behind every course decision—and turn years of academic history into usable knowledge.</p></div>
+            <div class="memory-orbit"><span class="orbit-core">A</span><i class="orbit one"></i><i class="orbit two"></i><b class="node n1">§</b><b class="node n2">✓</b><b class="node n3">⌁</b><b class="node n4">✦</b></div>
+          </div>
+          <div class="memory-stats">
+            <div><strong>12,480</strong><span>Academic artifacts</span></div><div><strong>18 years</strong><span>Institutional history</span></div><div><strong>342</strong><span>Course lineages</span></div><div><strong>99.8%</strong><span>Knowledge preserved</span></div>
+          </div>
+          <div class="memory-grid">
+            <div class="panel repository">
+              <div class="panel-header"><div><h2>Institutional Memory Repository</h2><p>Living academic knowledge, organized and connected</p></div><button class="icon-btn">⌕</button></div>
+              <div class="repo-grid">
+                <button><span>▱</span><b>Course versions</b><small>1,248 items</small></button>
+                <button><span>⌑</span><b>Syllabi</b><small>892 items</small></button>
+                <button><span>✓</span><b>Assignments</b><small>3,104 items</small></button>
+                <button><span>▥</span><b>Rubrics</b><small>1,876 items</small></button>
+                <button><span>◫</span><b>Program reviews</b><small>68 items</small></button>
+                <button><span>◇</span><b>Accreditation evidence</b><small>2,402 items</small></button>
+                <button><span>♧</span><b>Committee notes</b><small>734 items</small></button>
+                <button><span>♡</span><b>Faculty feedback</b><small>1,102 items</small></button>
+                <button><span>☆</span><b>Student feedback</b><small>2,918 items</small></button>
+                <button><span>↻</span><b>Revision history</b><small>4,320 events</small></button>
+              </div>
+            </div>
+            <div class="panel historian">
+              <span class="historian-icon">✦</span>
+              <p class="eyebrow">AI COURSE HISTORIAN</p>
+              <h2>Ask your academic history.</h2>
+              <p>Trace decisions, uncover context, and learn from every version that came before.</p>
+              <div class="historian-chat" id="historianChat">
+                <div class="ai-bubble">I can search 18 years of connected course history. What would you like to understand?</div>
+              </div>
+              <form id="historianForm" class="historian-form">
+                <input id="historianInput" placeholder="Why was this assignment created?">
+                <button class="primary-btn" type="submit">Ask ✦</button>
+              </form>
+              <div class="suggestions"><button>When was this outcome changed?</button><button>What requirement drove this revision?</button></div>
+            </div>
+          </div>
+          <div class="memory-lower">
+            <div class="panel timeline-panel">
+              <div class="panel-header"><div><h2>Course Decision Timeline</h2><p>PSY 301 · A traceable history of why</p></div><button class="text-btn">View full lineage →</button></div>
+              <div class="timeline">
+                <div><i></i><time>SEP 14, 2008</time><p><strong>Course created</strong><span>Dr. Elaine Foster</span><small>Introduced to support the new Behavioral Science program.</small></p></div>
+                <div><i></i><time>MAR 22, 2016</time><p><strong>Outcome revised</strong><span>Curriculum Committee</span><small>Added research literacy to meet updated APA guidance.</small></p></div>
+                <div><i></i><time>AUG 03, 2021</time><p><strong>Assignment redesigned</strong><span>Dr. Maya Chen</span><small>Student performance data showed a need for earlier scaffolding.</small></p></div>
+                <div><i></i><time>JAN 18, 2025</time><p><strong>Accreditation evidence added</strong><span>Jamie Wu</span><small>Mapped direct assessment evidence to HLC Criterion 4.B.</small></p></div>
+                <div class="active"><i></i><time>JUN 20, 2026</time><p><strong>Faculty handoff generated</strong><span>AI Course Studio</span><small>Prepared continuity package for incoming faculty.</small></p></div>
+              </div>
+            </div>
+            <div class="handoff-card">
+              <span>↗</span><p class="eyebrow">FACULTY TRANSITION ASSISTANT</p><h2>Knowledge should outlast turnover.</h2><p>Generate a thoughtful course handoff with teaching notes, common student issues, key decisions, findings, and recommendations.</p>
+              <button id="handoffBtn" class="light-btn">Generate Course Handoff Report →</button>
+              <div id="handoffReport" class="handoff-report"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Accreditation -->
+        <section class="page" id="accreditation">
+          <div class="page-heading"><div><p class="eyebrow">DOCUMENT</p><h1>Accreditation Assistant</h1><p>Transform continuous improvement work into clear, audit-ready evidence.</p></div><button id="generateAccreditationBtn" class="primary-btn">✦ Generate Accreditation Report</button></div>
+          <div class="accreditation-grid">
+            <div class="panel standards-panel">
+              <div class="panel-header"><div><h2>Standards framework</h2><p>Choose your reporting lens</p></div></div>
+              <div class="standard-options">
+                <label class="selected"><input type="radio" name="standard" checked><span>HLC</span><p><b>Higher Learning Commission</b><small>Criteria for Accreditation</small></p><i>✓</i></label>
+                <label><input type="radio" name="standard"><span>ABET</span><p><b>Engineering & Computing</b><small>Student outcomes framework</small></p></label>
+                <label><input type="radio" name="standard"><span>AACSB</span><p><b>Business Education</b><small>Assurance of learning</small></p></label>
+                <label><input type="radio" name="standard"><span>SACS</span><p><b>SACSCOC</b><small>Principles of accreditation</small></p></label>
+                <label><input type="radio" name="standard"><span>+</span><p><b>Custom Standards</b><small>Build an institutional framework</small></p></label>
+              </div>
+            </div>
+            <div class="panel readiness-panel">
+              <div class="panel-header"><div><h2>Evidence readiness</h2><p>College of Arts & Sciences · 2026 cycle</p></div><span class="status success">84% ready</span></div>
+              <div class="readiness-list">
+                <div><span>Outcome mapping</span><div class="progress green"><i style="width:96%"></i></div><b>96%</b></div>
+                <div><span>Evidence collection</span><div class="progress"><i style="width:82%"></i></div><b>82%</b></div>
+                <div><span>Assessment reporting</span><div class="progress"><i style="width:76%"></i></div><b>76%</b></div>
+                <div><span>Continuous improvement</span><div class="progress amber"><i style="width:68%"></i></div><b>68%</b></div>
+              </div>
+              <div class="gap-alert"><span>!</span><p><strong>3 accreditation gaps need attention</strong><small>Two missing evidence artifacts and one incomplete improvement narrative.</small></p><button>Review gaps</button></div>
+            </div>
+          </div>
+          <div class="report-preview panel" id="accreditationReport">
+            <div class="empty-state"><span>⌑</span><h3>Your report preview will appear here</h3><p>Generate a structured narrative with evidence links, findings, and improvement actions.</p></div>
+          </div>
+        </section>
+
+        <!-- Settings -->
+        <section class="page" id="settings">
+          <div class="page-heading"><div><p class="eyebrow">WORKSPACE</p><h1>Settings</h1><p>Configure institutional defaults and your personal studio experience.</p></div><button id="saveSettingsBtn" class="primary-btn">Save changes</button></div>
+          <div class="settings-layout">
+            <aside class="settings-nav panel"><button class="active">Institution</button><button>Integrations</button><button>Course defaults</button><button>Branding</button><button>Profile & role</button></aside>
+            <form class="panel form-panel settings-form">
+              <h2>Institution settings</h2><p>These details appear across reports, exports, and shared courses.</p>
+              <label>Institution name<input value="Northbridge University"></label>
+              <label>Department<input value="College of Arts & Sciences"></label>
+              <label>Canvas URL<input value="https://northbridge.instructure.com"></label>
+              <label>AI provider<select><option>Studio AI — Prototype</option><option>Institution-managed provider</option></select></label>
+              <label>Default course format<select><option>15-week semester</option><option>8-week accelerated</option><option>Quarter</option></select></label>
+              <label>Branding color<div class="color-input"><input type="color" value="#6655d9"><input value="#6655D9"></div></label>
+              <label>User role<select><option>Dean</option><option>Faculty</option><option>Instructional Designer</option><option>Department Chair</option></select></label>
+            </form>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast"><span>✓</span><p><strong id="toastTitle">Done</strong><small id="toastMessage">Your changes have been saved.</small></p></div>
+  <script src="script.js"></script>
+</body>
+</html>
