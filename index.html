@@ -16,24 +16,24 @@
       <div class="brand"><span>INF</span><div><strong>INF 125 Canvas Content Builder</strong><small>AI Literacy · NKU-inspired workflow</small></div></div>
       <div class="nav-actions">
         <button data-tab="dashboard">Dashboard</button>
-        <button data-tab="content">Course Content</button>
-        <button data-tab="builder">Module Builder</button>
+        <button data-tab="content">Content Builder</button>
+        <button data-tab="versions">Course Versions</button>
         <button data-tab="assignments">Major Assignments</button>
-        <button data-tab="preview">Canvas Preview</button>
+        <button data-tab="preview">Canvas Export</button>
         <button data-tab="settings">Settings</button>
       </div>
     </nav>
     <section class="hero-copy">
       <p class="eyebrow">GitHub Pages safe prototype</p>
       <h1>Build, approve, and export INF 125 Canvas content from your Google Sheet.</h1>
-      <p>No Gemini API keys or Canvas tokens are stored in the front end. The browser calls Google Apps Script, which reads Google Sheets, calls Gemini, and sends approved content to Canvas.</p>
+      <p>Manage one approved Master Shell, create delivery-specific versions, preview exports, and send approved content to the correct Canvas course through secure Google Apps Script.</p>
       <div class="hero-buttons"><button class="gold" id="loadSampleBtn">Load sample demo data</button><button id="syncBtn">Load from Apps Script</button></div>
     </section>
   </header>
   <main>
     <section id="dashboard" class="tab active"></section>
     <section id="content" class="tab"></section>
-    <section id="builder" class="tab"></section>
+    <section id="versions" class="tab"></section>
     <section id="assignments" class="tab"></section>
     <section id="preview" class="tab"></section>
     <section id="settings" class="tab"></section>

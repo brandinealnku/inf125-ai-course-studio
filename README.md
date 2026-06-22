@@ -150,3 +150,95 @@ Canvas helpers are included for:
 - Store secrets only in Apps Script Script Properties.
 - Use Apps Script as the secure backend API.
 - Treat GitHub Pages as a public static site.
+
+## Master Shell and multi-version strategy
+
+The **INF 125 Master Shell** is the approved gold-copy course. It should hold the approved INF 125 modules, SLOs, General Education mappings, assignments, rubrics, pages, and portfolio/final project structure. Delivery versions are generated from that master content instead of rebuilding the course.
+
+Supported working versions:
+
+1. **Master Shell** — approved source content.
+2. **In-Person** — adds classroom activities, attendance/participation language, live discussion prompts, due date placeholders, and facilitation notes.
+3. **Online/Hybrid** — adds asynchronous instructions, discussion prompts, recorded demo placeholders, weekly checklist language, and online participation expectations.
+4. **WE Lead CS Licensed** — preserves the curriculum structure while removing NKU-only operational language where appropriate and adding facilitator, implementation, licensing, and partner customization placeholders.
+
+## Create Canvas shells and add course IDs
+
+Create one Canvas shell for the Master Shell and one shell or section for each delivery version you plan to export. In the app, open **Settings** and store these non-secret values in browser `localStorage`:
+
+- Apps Script Web App URL
+- Google Sheet ID
+- Default Canvas Base URL
+- Master Shell Canvas Course ID
+- In-Person Canvas Course ID
+- Online/Hybrid Canvas Course ID
+- WE Lead CS Canvas Course ID
+
+Canvas tokens must not be stored in the browser. Store `CANVAS_API_TOKEN`, `GEMINI_API_KEY`, and `DEFAULT_CANVAS_BASE_URL` in Apps Script `PropertiesService`.
+
+## Version-aware spreadsheet columns
+
+The `CourseContent` sheet now supports these additional columns:
+
+```text
+courseVersion, includeInVersion, canvasTargetCourseId, deliveryMode,
+partnerLicenseVersion, customizationNotes, brandingNotes, policyNotes,
+visibility, publishStatus, canvasExportStatus, canvasExportDate,
+canvasItemUrl, masterShellSourceId, versionSyncStatus
+```
+
+Use `includeInVersion` to tag rows for one or more versions, for example:
+
+```text
+Master Shell, In-Person, Online/Hybrid, WE Lead CS Licensed
+```
+
+Use `canvasTargetCourseId` when a specific row should export to a specific Canvas shell. Otherwise, the front end can use the version course ID saved in Settings.
+
+## Export to one version or multiple versions
+
+1. Select a **Working Version** at the top of the Dashboard, Content Builder, Course Versions, Major Assignments, or Canvas Export tabs.
+2. Confirm each row is tagged in `includeInVersion` for the selected version.
+3. Generate version customizations when needed.
+4. Approve the version content.
+5. Preview the Canvas export details.
+6. Send a selected item, selected module, or entire selected version through Apps Script.
+
+The export workflow blocks sending unless:
+
+- `facultyStatus` is `Approved`
+- `includeInVersion` matches the selected version
+- a Canvas target course ID exists
+- `publishStatus` is `Ready` or `Approved`
+
+## Version sync workflow
+
+If Master Shell content changes, mark related delivery rows as `Out of Sync`. The Course Versions dashboard shows out-of-sync counts. Use **Generate Customizations** or the Apps Script `syncFromMaster` action to regenerate from the master, or keep the custom version by approving it again.
+
+Status badges used by the prototype include:
+
+- Master Approved
+- Needs Customization
+- Customized Draft
+- Version Approved
+- Sent to Canvas
+- Out of Sync
+
+## WE Lead CS licensed version workflow
+
+For WE Lead CS delivery, tag approved master rows with `WE Lead CS Licensed` in `includeInVersion`. Generate customizations to remove NKU-only operational wording where appropriate while preserving SLOs, Gen Ed mappings, curriculum sequence, assignments, rubrics, and learning intent. Add facilitator guide notes, partner implementation placeholders, and licensing notes before approving and exporting to the WE Lead CS Canvas shell.
+
+## New Apps Script POST actions
+
+The backend now includes version-aware actions:
+
+- `getCourseVersions`
+- `getVersionData`
+- `createVersionPlan`
+- `generateVersionCustomization`
+- `approveVersionItem`
+- `sendVersionItemToCanvas`
+- `sendVersionModuleToCanvas`
+- `sendEntireVersionToCanvas`
+- `markOutOfSync`
+- `syncFromMaster`
