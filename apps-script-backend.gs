@@ -3,10 +3,12 @@
  * Script Properties required:
  * - GEMINI_API_KEY
  * - CANVAS_API_TOKEN
- * - CANVAS_BASE_URL optional fallback
+ * - DEFAULT_CANVAS_BASE_URL optional fallback
  * - SPREADSHEET_ID optional fallback
  */
-const REQUIRED_COLUMNS = ["id","week","unit","module","contentType","title","slos","genEdOutcomes","readings","discussionQuestions","smallAssignment","curriculum","aiDraft","facultyStatus","sendToCanvas","canvasStatus","points","dueDate","canvasUrl"];
+const REQUIRED_COLUMNS = ["id","week","unit","module","contentType","title","slos","genEdOutcomes","readings","discussionQuestions","smallAssignment","curriculum","aiDraft","facultyStatus","sendToCanvas","canvasStatus","points","dueDate","canvasUrl","courseVersion","includeInVersion","canvasTargetCourseId","deliveryMode","partnerLicenseVersion","customizationNotes","brandingNotes","policyNotes","visibility","publishStatus","canvasExportStatus","canvasExportDate","canvasItemUrl","masterShellSourceId","versionSyncStatus"];
+const VERSION_COLUMNS = ["name","canvasCourseId","deliveryMode","brandingRules","policyRules","itemsIncluded","itemsExcluded","syncStatus"];
+const COURSE_VERSIONS = ["Master Shell", "In-Person", "Online/Hybrid", "WE Lead CS Licensed"];
 const SLOS = [
   "Define and explain foundational AI concepts including artificial intelligence, prompting, machine learning, natural language processing, and neural networks.",
   "Apply AI tools in discipline-specific or personal productivity contexts.",
@@ -19,7 +21,7 @@ function doPost(e) {
   try {
     const req = JSON.parse(e.postData.contents || "{}");
     const action = req.action;
-    const handlers = { getCourseData, updateRow, generateDraft, improveDraft, approveItem, sendToCanvas, markComplete };
+    const handlers = { getCourseData, getCourseVersions, getVersionData, createVersionPlan, generateVersionCustomization, approveVersionItem, sendVersionItemToCanvas, sendVersionModuleToCanvas, sendEntireVersionToCanvas, markOutOfSync, syncFromMaster, updateRow, generateDraft, improveDraft, approveItem, sendToCanvas, markComplete };
     if (!handlers[action]) throw new Error("Unsupported action: " + action);
     return json({ ok: true, data: handlers[action](req) });
   } catch (err) {
@@ -43,8 +45,57 @@ function getCourseData(req) {
   const contentSheet = sheet(req, "CourseContent"); ensureHeader(contentSheet, REQUIRED_COLUMNS);
   const assignmentSheet = sheet(req, "MajorAssignments");
   const assignments = assignmentSheet.getLastRow() ? readRows(assignmentSheet) : [];
-  return { content: readRows(contentSheet), majorAssignments: assignments };
+  return { content: readRows(contentSheet), majorAssignments: assignments, courseVersions: getCourseVersions(req) };
 }
+function getCourseVersions(req) {
+  const sh = sheet(req, "CourseVersions"); ensureHeader(sh, VERSION_COLUMNS);
+  const rows = readRows(sh);
+  if (rows.length) return rows;
+  return COURSE_VERSIONS.map(name => ({ name, canvasCourseId:"", deliveryMode:versionMode(name), brandingRules:versionBranding(name), policyRules:versionPolicy(name), itemsIncluded:"", itemsExcluded:"", syncStatus:name === "Master Shell" ? "Master Approved" : "Synced" }));
+}
+function getVersionData(req) {
+  const all = getCourseData(req);
+  const version = req.version || "Master Shell";
+  all.content = all.content.filter(row => includeInVersion(row, version));
+  return all;
+}
+function createVersionPlan(req) {
+  const version = req.version || "Master Shell";
+  const rows = (req.rows || getCourseData(req).content.filter(r => includeInVersion(r, version))).map(row => {
+    row.courseVersion = row.courseVersion || version;
+    row.deliveryMode = row.deliveryMode || versionMode(version);
+    row.canvasTargetCourseId = row.canvasTargetCourseId || req.canvasCourseId || "";
+    row.versionSyncStatus = row.versionSyncStatus || (version === "Master Shell" ? "Master Approved" : "Needs Customization");
+    return writeRow(req, row);
+  });
+  return { version, count: rows.length, rows };
+}
+function generateVersionCustomization(req) {
+  const row = req.row; const version = req.version || "Master Shell";
+  row.aiDraft = callGemini(versionPrompt(version, row));
+  row.customizationNotes = "Customized for " + version;
+  row.versionSyncStatus = "Customized Draft";
+  row.publishStatus = "Draft";
+  return writeRow(req, row);
+}
+function approveVersionItem(req) { const row = req.row; row.facultyStatus = "Approved"; row.publishStatus = "Approved"; row.versionSyncStatus = "Version Approved"; return writeRow(req, row); }
+function markOutOfSync(req) { const row = req.row; row.versionSyncStatus = "Out of Sync"; return writeRow(req, row); }
+function syncFromMaster(req) { const row = req.row; row.versionSyncStatus = "Synced"; row.publishStatus = "Draft"; return writeRow(req, row); }
+function sendVersionItemToCanvas(req) { return sendToCanvas(req); }
+function sendVersionModuleToCanvas(req) {
+  const version = req.version || "Master Shell"; const moduleName = req.module;
+  const rows = getCourseData(req).content.filter(r => includeInVersion(r, version) && (!moduleName || r.module === moduleName));
+  return { version, module: moduleName, sent: rows.map(row => sendToCanvas(Object.assign({}, req, { row, canvasCourseId: row.canvasTargetCourseId || req.canvasCourseId }))) };
+}
+function sendEntireVersionToCanvas(req) {
+  const version = req.version || "Master Shell";
+  const rows = getCourseData(req).content.filter(r => includeInVersion(r, version));
+  return { version, sent: rows.map(row => sendToCanvas(Object.assign({}, req, { row, canvasCourseId: row.canvasTargetCourseId || req.canvasCourseId }))) };
+}
+function includeInVersion(row, version) { return String(row.includeInVersion || row.courseVersion || "").split(/[,;|]/).map(v => v.trim()).indexOf(version) >= 0 || row.courseVersion === version; }
+function versionMode(version) { return version === "In-Person" ? "In-Person" : version === "Online/Hybrid" ? "Online/Hybrid" : version === "WE Lead CS Licensed" ? "Licensed Partner" : "Master"; }
+function versionBranding(version) { return version === "WE Lead CS Licensed" ? "Partner/facilitator branding placeholders" : "NKU-inspired black, white, and gold styling"; }
+function versionPolicy(version) { return version === "WE Lead CS Licensed" ? "Remove NKU-only operational language where appropriate" : version === "Online/Hybrid" ? "Online participation expectations" : version === "In-Person" ? "Attendance and in-class participation language" : "Approved Master Shell policy language"; }
 function updateRow(req) { return writeRow(req, req.row); }
 function approveItem(req) { const row = req.row; row.facultyStatus = "Approved"; return writeRow(req, row); }
 function markComplete(req) { const row = req.row; row.canvasStatus = "Complete"; return writeRow(req, row); }
@@ -75,15 +126,18 @@ function callGemini(prompt) {
 }
 function sendToCanvas(req) {
   const row = req.row; if (row.facultyStatus !== "Approved") throw new Error("Faculty Status must be Approved before sending to Canvas.");
-  const base = (req.canvasBaseUrl || props().getProperty("CANVAS_BASE_URL") || "").replace(/\/$/, "");
+  const version = req.version || row.courseVersion || "Master Shell";
+  if (!includeInVersion(row, version)) throw new Error("Include in Version must match selected version.");
+  if (["Ready", "Approved"].indexOf(String(row.publishStatus || "")) < 0) throw new Error("Publish Status must be Ready or Approved.");
+  const base = (req.canvasBaseUrl || props().getProperty("DEFAULT_CANVAS_BASE_URL") || props().getProperty("CANVAS_BASE_URL") || "").replace(/\/$/, "");
   const token = props().getProperty("CANVAS_API_TOKEN"); if (!base || !token) throw new Error("Missing Canvas base URL or CANVAS_API_TOKEN Script Property.");
-  const courseId = req.canvasCourseId; const module = createModule(base, token, courseId, `Week ${row.week}: ${row.module}`);
+  const courseId = row.canvasTargetCourseId || req.canvasCourseId; if (!courseId) throw new Error("Canvas Target Course ID is required."); const module = createModule(base, token, courseId, `Week ${row.week}: ${row.module}`);
   let item;
   if (row.contentType === "Assignment") item = createAssignment(base, token, courseId, row);
   else if (row.contentType === "Discussion") item = createDiscussion(base, token, courseId, row);
   else item = createPage(base, token, courseId, row);
   addItemToModule(base, token, courseId, module.id, row.contentType, item);
-  row.canvasStatus = "Sent"; row.canvasUrl = item.html_url || item.url || ""; writeRow(req, row);
+  row.canvasStatus = "Sent"; row.canvasExportStatus = "Sent"; row.canvasExportDate = new Date().toISOString(); row.canvasUrl = item.html_url || item.url || ""; row.canvasItemUrl = row.canvasUrl; writeRow(req, row);
   return { canvasId:item.id || item.page_id, canvasUrl:row.canvasUrl, canvasModuleId:module.id };
 }
 function canvasFetch(base, token, path, payload) { const res = UrlFetchApp.fetch(base + "/api/v1" + path, { method:"post", headers:{Authorization:"Bearer "+token}, contentType:"application/json", payload:JSON.stringify(payload), muteHttpExceptions:true }); const body=JSON.parse(res.getContentText()||"{}"); if(res.getResponseCode()>=300) throw new Error(body.message || "Canvas API error"); return body; }
@@ -92,3 +146,13 @@ function createPage(base, token, courseId, row) { return canvasFetch(base, token
 function createAssignment(base, token, courseId, row) { return canvasFetch(base, token, `/courses/${courseId}/assignments`, { assignment:{ name:row.title, description:row.aiDraft || row.curriculum, points_possible:Number(row.points||0), submission_types:["online_upload"], published:false }}); }
 function createDiscussion(base, token, courseId, row) { return canvasFetch(base, token, `/courses/${courseId}/discussion_topics`, { title:row.title, message:row.aiDraft || row.discussionQuestions, published:false }); }
 function addItemToModule(base, token, courseId, moduleId, type, item) { const itemType = type === "Assignment" ? "Assignment" : type === "Discussion" ? "Discussion" : "Page"; const contentId = item.id || item.page_id || item.url; return canvasFetch(base, token, `/courses/${courseId}/modules/${moduleId}/items`, { module_item:{ type:itemType, content_id:contentId, page_url:item.url, title:item.title || item.name }}); }
+
+function versionPrompt(version, row) {
+  const prompts = {
+    "In-Person": "Adapt this approved INF 125 content for an in-person college course. Preserve the approved SLOs, Gen Ed mappings, and assessment purpose. Add classroom activities, live discussion prompts, and instructor facilitation notes.",
+    "Online/Hybrid": "Adapt this approved INF 125 content for online or hybrid delivery. Preserve the approved SLOs, Gen Ed mappings, and assessment purpose. Add asynchronous instructions, weekly checklist language, online discussion prompts, and recorded demo placeholders.",
+    "WE Lead CS Licensed": "Adapt this approved INF 125 content for a licensed external partner delivery version. Preserve the approved curriculum structure, SLOs, and learning intent. Remove NKU-only operational language where appropriate. Add facilitator guidance, implementation notes, and partner customization placeholders.",
+    "Master Shell": "Preserve this approved INF 125 Master Shell content as the gold copy. Do not add unapproved policy language."
+  };
+  return basePrompt(row) + "\n\nVersion: " + version + "\nTask: " + (prompts[version] || prompts["Master Shell"]);
+}
