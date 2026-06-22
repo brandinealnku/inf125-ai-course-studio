@@ -1,69 +1,177 @@
-# AI Course Studio V2 · INF 125
+# AI Course Command Center V6 · INF 125
 
-AI Course Studio V2 is a static GitHub Pages prototype focused on helping an instructor build, review, approve, and export content for **INF 125: Social Media and Society**. It uses plain HTML, CSS, and JavaScript with no backend, no build system, no paid dependencies, and no exposed API keys.
+This is a static GitHub Pages front end for **AI Course Command Center V6** for **INF 125: Social Media and Society**.
 
-## How to use the GitHub Pages app
+The intended production architecture is:
 
-1. Open `index.html` directly in a browser, or publish the repository root with GitHub Pages.
-2. Use the left navigation to move between the INF 125 dashboard, course profile, module builder, generator, approval queue, Canvas Intelligence, Institutional Memory, Canvas Export Center, and Accreditation Report.
-3. Edit the course profile and module content. Changes are saved in browser `localStorage`.
-4. Generate mock AI content from the AI Generator panel. Generated drafts are placed in the approval queue.
-5. Approve drafts before marking them as sent to Canvas or including them in simulated exports.
+- **GitHub Pages**: browser front end only
+- **Google Sheets**: course workbook/database
+- **Google Apps Script Web App**: secure backend/proxy
+- **Gemini API key**: stored only in Apps Script Script Properties
+- **Canvas API token**: stored only in Apps Script Script Properties
+- **localStorage**: fallback/cache and offline backup
 
-For local preview with a simple static server:
+No Gemini API keys or Canvas API tokens are stored in this repository or in browser JavaScript.
+
+## Workbook-aligned sections
+
+The app aligns to these Google Sheet tabs:
+
+- `Dashboard`
+- `Course_Config`
+- `V6_Settings`
+- `Weeks`
+- `Course_Calendar`
+- `Activities`
+- `Assessments`
+- `Learning_Objectives`
+- `AI_Drafts`
+- `Canvas_Item_Map`
+- `Publishing_Log`
+- `Faculty_Signup`
+- `Faculty_Feedback`
+- `Lists`
+
+The tabs and columns are the source of truth for the command center UI.
+
+## How the app connects to Google Sheets
+
+1. Deploy the Apps Script starter as a Web App.
+2. Open the GitHub Pages app.
+3. Go to **Settings**.
+4. Enter:
+   - Apps Script Web App URL
+   - Course ID
+   - Canvas Course ID
+   - Sync mode: `Read Only`, `Draft Only`, or `Full Publish`
+   - Enable local cache: `Yes` or `No`
+5. Click **Save Settings**.
+6. Click **Sync from Google Sheet**.
+
+The app tries to load from Apps Script first when a URL is configured. If Apps Script is unavailable, it shows a warning and uses the localStorage cache.
+
+## Deploy Apps Script as a Web App
+
+1. Create or open a Google Sheet with the workbook tab names listed above.
+2. Open **Extensions → Apps Script**.
+3. Paste the contents of `apps-script-starter.js`.
+4. Set `SPREADSHEET_ID` to your Google Sheet ID.
+5. In Apps Script, open **Project Settings → Script Properties**.
+6. Add properties as needed:
+   - `GEMINI_API_KEY`
+   - `CANVAS_API_TOKEN`
+   - `CANVAS_BASE_URL`
+7. Deploy as a **Web App**.
+8. Copy the Web App URL into the GitHub Pages app Settings section.
+
+## Apps Script API contract
+
+See `APPS_SCRIPT_CONTRACT.md` for the expected request and response shapes for:
+
+- `getSheetData`
+- `saveSheetRow`
+- `updateSheetRow`
+- `deleteSheetRow`
+- `generateWithGemini`
+- `publishToCanvas`
+- `getCanvasStatus`
+- `logPublishingAction`
+
+All browser calls go to the Apps Script Web App URL only.
+
+## Gemini generation workflow
+
+The **Generate Content** page lets the instructor select:
+
+- Week
+- Source section: `Weeks`, `Activities`, `Assessments`, or `Learning_Objectives`
+- Output format: Canvas Page, Assignment, Discussion, Quiz, Rubric, or Announcement
+- Tone
+- Prompt
+
+The browser sends a payload to Apps Script:
+
+```json
+{
+  "action": "generateWithGemini",
+  "courseId": "INF125",
+  "sectionName": "Weeks",
+  "selectedRows": [],
+  "prompt": "Create INF 125 content...",
+  "outputType": "Canvas Page"
+}
+```
+
+Apps Script should call Gemini securely and return draft HTML, summary, prompt snapshot, and generation status. The browser saves the returned draft into `AI_Drafts`.
+
+If Apps Script is unavailable, the app creates a clearly labeled local fallback draft so the UI can still be tested.
+
+## Canvas publishing workflow
+
+Approved AI Drafts can be sent to Canvas through Apps Script. Publishing is allowed only when:
+
+- `Review Status` is `Approved`
+- `Publish Status` is not already `Sent to Canvas` or `Published`
+
+The browser sends:
+
+```json
+{
+  "action": "publishToCanvas",
+  "canvasCourseId": "12345",
+  "canvasItemType": "Assignment",
+  "canvasTitle": "Applied Platform Analysis 1",
+  "draftHtml": "<p>...</p>",
+  "week": 1,
+  "moduleName": "Week 1"
+}
+```
+
+Apps Script handles the Canvas API securely. On success, the app updates:
+
+- `AI_Drafts`
+- `Canvas_Item_Map`
+- `Publishing_Log`
+
+If Apps Script is unavailable, the app performs a clearly labeled local simulation for testing.
+
+## Spreadsheet import backup
+
+The app keeps the **Spreadsheet Import** section as a backup path. It supports:
+
+- `.xlsx`
+- `.xls`
+- `.csv`
+
+Excel parsing uses SheetJS from a browser CDN with a fallback CDN URL. CSV parsing is done locally in JavaScript. Imported data is saved to localStorage and can then be pushed to Google Sheets through Apps Script.
+
+## localStorage fallback/cache
+
+The app stores only non-secret settings and cached workbook data locally:
+
+- Apps Script Web App URL
+- Course ID
+- Canvas Course ID
+- Sync mode
+- Cache setting
+- Cached workbook rows
+
+Use **Download Backup JSON** to save a local copy and **Restore Backup JSON** to reload it.
+
+## Running locally
+
+No npm install is required:
 
 ```bash
 python3 -m http.server 8000
 ```
 
-Then visit `http://localhost:8000`.
+Then open `http://localhost:8000/`.
 
-## Current mock features
+## GitHub Pages
 
-- INF 125 dashboard with course overview, weekly progress, readiness scores, content tasks, and quick actions.
-- Editable course profile preloaded with INF 125 sample data.
-- Eight-week module builder with editable objectives, lectures, readings, activities, assignments, discussions, quizzes, notes, and statuses.
-- Mock AI content generator with content type, prompt, and context selectors.
-- Approval workflow for generated content with edit, approve, reject, and send-to-Canvas actions.
-- Canvas Intelligence simulation for missing pages, overloaded weeks, unpublished modules, rubric gaps, discussion criteria, quiz alignment, workload balance, and readiness scoring.
-- Institutional Memory CRUD for department policies, instructor preferences, approved patterns, rubric language, design decisions, accreditation notes, accessibility reminders, support language, and AI policy language.
-- Canvas Export Center for selected modules, approved content, JSON, Markdown, Canvas-ready HTML, and import checklists.
-- Accreditation and alignment report with sample INF 125 outcomes, mappings, gaps, and recommendations.
+Publish the repository root with GitHub Pages. The app uses relative paths and browser APIs only, so it remains static-hosting compatible.
 
-## Persistence
+## Security warning
 
-The prototype stores data only in browser `localStorage`, including:
-
-- Course profile
-- Modules
-- Institutional Memory entries
-- Generated content and approval queue
-- Canvas export status
-
-Use **Reset demo data** in the top bar to clear local V2 data and reload the defaults.
-
-## Future Gemini API integration plan
-
-The JavaScript is structured around a reusable `mockGenerate()` function in `app.js`. Later, replace the mock response with a request to a secure API proxy that calls Gemini. Do **not** put Gemini API keys directly in GitHub Pages JavaScript. A production path should:
-
-1. Send the selected content type, prompt, course profile, selected module, Institutional Memory, and Canvas Intelligence context to a protected endpoint.
-2. Keep API keys in server-side environment variables or an institution-approved secrets manager.
-3. Return generated content to the same approval queue workflow.
-4. Preserve human approval before Canvas publishing.
-
-## Future Canvas API integration plan
-
-The Canvas Export Center is currently simulated. Future Canvas support should use Canvas OAuth or another institution-approved secure flow. A production path should:
-
-1. Authenticate the instructor securely.
-2. Map approved modules, pages, assignments, discussions, quizzes, and rubrics to Canvas API payloads.
-3. Send POST/PUT requests from a secure backend or proxy, not from hardcoded tokens in static JavaScript.
-4. Record Canvas item IDs and publish status back into the app's persistent store.
-5. Keep the current approval-before-publish workflow as a safety gate.
-
-## Repository structure
-
-- `index.html` — static app shell and section markup
-- `styles.css` — responsive visual design, cards, badges, progress, and layouts
-- `app.js` — localStorage state, mock generation, module editing, approval workflow, exports, and reports
-- `README.md` — project overview and integration roadmap
+Never commit Gemini or Canvas secrets to this repository. Never place API keys or Canvas tokens in `index.html`, `app.js`, or any GitHub Pages asset. Use Apps Script Script Properties and server-side UrlFetchApp calls.

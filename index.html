@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="AI Course Studio V2 for building INF 125 course content on GitHub Pages.">
-  <title>AI Course Studio V2 · INF 125</title>
+  <meta name="description" content="AI Course Command Center V6 for INF 125 with Google Sheets, Apps Script, Gemini, and Canvas workflows.">
+  <title>AI Course Command Center V6 · INF 125</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
@@ -13,45 +13,45 @@
 <body>
   <div class="app-shell">
     <aside class="sidebar" id="sidebar">
-      <div class="brand"><div class="brand-mark">AI</div><div><strong>AI Course</strong><span>Studio V2</span></div></div>
-      <div class="workspace-switcher"><span class="workspace-logo">125</span><span><small>Course workspace</small><strong>INF 125 · Spring 2027</strong></span></div>
-      <nav class="nav" aria-label="Primary navigation">
-        <p class="nav-label">Build</p>
-        <button class="nav-link active" data-page="dashboard"><span>⌂</span> Dashboard</button>
-        <button class="nav-link" data-page="profile"><span>▣</span> Course Profile</button>
-        <button class="nav-link" data-page="modules"><span>▤</span> Module Builder</button>
-        <button class="nav-link" data-page="generator"><span>✦</span> AI Generator</button>
-        <button class="nav-link" data-page="review"><span>✓</span> Approval Queue</button>
-        <p class="nav-label">Intelligence</p>
-        <button class="nav-link" data-page="canvasIntel"><span>◈</span> Canvas Intelligence</button>
-        <button class="nav-link" data-page="memory"><span>◉</span> Institutional Memory <b class="new-badge">KEY</b></button>
-        <button class="nav-link" data-page="export"><span>↗</span> Canvas Export Center</button>
-        <button class="nav-link" data-page="alignment"><span>⌘</span> Accreditation Report</button>
-      </nav>
-      <div class="sidebar-bottom"><div class="profile"><div class="avatar">DR</div><div><strong>Dr. Dana Reed</strong><small>INF 125 builder</small></div></div></div>
+      <div class="brand"><div class="brand-mark">V6</div><div><strong>AI Course</strong><span>Command Center</span></div></div>
+      <div class="workspace-switcher"><span class="workspace-logo">125</span><span><small>Google Sheet workspace</small><strong>INF 125 · Apps Script</strong></span></div>
+      <nav class="nav" id="nav" aria-label="Command center navigation"></nav>
+      <div class="sidebar-bottom"><div class="profile"><div class="avatar">DR</div><div><strong>Dr. Dana Reed</strong><small>Course builder</small></div></div></div>
     </aside>
     <main class="main">
-      <header class="topbar"><button class="menu-btn" id="menuBtn" aria-label="Toggle menu">☰</button><div class="breadcrumb"><span id="breadcrumb">Dashboard</span><b>Local prototype</b></div><div class="top-actions"><button class="secondary-btn" id="resetDemoBtn">Reset demo data</button><button class="primary-btn compact" data-action="quick" data-type="Module">+ Generate</button></div></header>
+      <header class="topbar">
+        <button class="menu-btn" id="menuBtn" aria-label="Toggle menu">☰</button>
+        <div class="breadcrumb"><span id="breadcrumb">Dashboard</span><b id="sourceBadge">Local cache</b></div>
+        <div class="top-actions">
+          <button class="secondary-btn" id="syncFromSheetBtn">Sync from Google Sheet</button>
+          <button class="secondary-btn" id="saveAllBtn">Save changes to Sheet</button>
+          <button class="secondary-btn" id="backupBtn">Download Backup JSON</button>
+          <label class="secondary-btn file-btn">Restore Backup JSON<input id="restoreInput" type="file" accept="application/json"></label>
+        </div>
+      </header>
       <div class="content">
-        <section class="page active" id="dashboard">
-          <div class="page-heading dashboard-heading"><div><p class="eyebrow">INF 125 COURSE DASHBOARD</p><h1>Build and manage course content with approval before Canvas publish.</h1><p>A static, localStorage-powered workspace for Social Media and Society.</p></div><div class="ai-status"><i></i><span>Mock AI ready<small>No backend or API keys</small></span></div></div>
-          <div class="course-overview" id="courseOverview"></div>
-          <div class="metric-grid" id="dashboardMetrics"></div>
-          <div class="dashboard-grid"><div class="panel"><div class="panel-header"><div><h2>Weekly module progress</h2><p>Status by week for the editable INF 125 builder.</p></div><button class="text-btn" data-page-jump="modules">Open builder →</button></div><div id="weeklyProgress" class="week-progress-grid"></div></div><div class="panel"><div class="panel-header"><div><h2>Upcoming content tasks</h2><p>Priority work before Canvas export.</p></div></div><div id="taskList" class="task-list"></div></div></div>
-          <h2 class="section-title">Quick actions</h2><div class="quick-grid" id="quickActions"></div>
-        </section>
-        <section class="page" id="profile"><div class="page-heading"><div><p class="eyebrow">COURSE PROFILE SETUP</p><h1>INF 125 source of truth</h1><p>Saved locally and used as context for mock generation.</p></div></div><form class="panel form-panel" id="profileForm"><div class="form-grid" id="profileFields"></div><button class="primary-btn full" type="submit">Save course profile</button></form></section>
-        <section class="page" id="modules"><div class="page-heading"><div><p class="eyebrow">MODULE BUILDER</p><h1>Editable 8-week content plan</h1><p>Edit, regenerate, approve, duplicate, export markdown, and simulate Canvas handoff.</p></div><button class="primary-btn" id="addModuleBtn">+ Add module</button></div><div id="moduleBuilder" class="module-builder"></div></section>
-        <section class="page" id="generator"><div class="page-heading"><div><p class="eyebrow">AI CONTENT GENERATOR</p><h1>Generate reviewable INF 125 content</h1><p>Mock responses are structured so a Gemini API call can be plugged in later.</p></div></div><div class="generator-layout"><form class="panel generator-controls" id="generatorForm"><label>Content type<select id="contentType"><option>Module</option><option>Assignment</option><option>Discussion</option><option>Quiz</option><option>Rubric</option><option>Announcement</option><option>Canvas Page</option></select></label><label>Related module<select id="selectedModule"></select></label><label>Prompt<textarea id="generatorPrompt">Create practical, student-facing content for the selected INF 125 week.</textarea></label><fieldset class="context-box"><legend>Context selector</legend><label><input type="checkbox" value="course" checked> Use Course Profile</label><label><input type="checkbox" value="memory" checked> Use Institutional Memory</label><label><input type="checkbox" value="canvas" checked> Use Canvas Intelligence</label><label><input type="checkbox" value="module" checked> Use Selected Module</label></fieldset><button class="primary-btn full" type="submit">✦ Generate draft</button></form><div class="panel"><div class="panel-header"><div><h2>Generated draft preview</h2><p>Approve from the review queue before sending to Canvas.</p></div></div><div id="generatorOutput" class="empty-state"><span>✦</span><h3>No draft yet</h3><p>Choose a content type and generate a mock AI response.</p></div></div></div></section>
-        <section class="page" id="review"><div class="page-heading"><div><p class="eyebrow">APPROVAL WORKFLOW</p><h1>Review queue before Canvas publishing</h1><p>Generated content waits here until it is edited, approved, rejected, or sent to Canvas.</p></div></div><div id="reviewQueue" class="review-grid"></div></section>
-        <section class="page" id="canvasIntel"><div class="page-heading"><div><p class="eyebrow">CANVAS INTELLIGENCE</p><h1>Simulated Canvas-connected insights</h1><p>This is a mock until Canvas API is connected; it helps identify publish blockers now.</p></div><span class="status warning">Simulation</span></div><div id="canvasInsights"></div></section>
-        <section class="page" id="memory"><div class="memory-heading"><div><span class="feature-chip light">Institutional differentiator</span><h1>Institutional Memory for <em>better first drafts</em>.</h1><p>Save policies, patterns, rubric language, accessibility reminders, student support language, AI usage policy wording, and course design decisions.</p><button class="light-btn" id="useMemoryBtn">Use Memory in Generation</button></div><div class="memory-orbit"><div class="orbit-core">M</div><div class="orbit one"></div><div class="orbit two"></div><span class="node n1">§</span><span class="node n2">✓</span><span class="node n3">AI</span><span class="node n4">C</span></div></div><div class="memory-stats" id="memoryStats"></div><div class="memory-grid"><form class="panel" id="memoryForm"><h2>Add / edit memory entry</h2><input type="hidden" id="memoryId"><label>Category<select id="memoryCategory"><option>Department policy</option><option>Instructor preference</option><option>Approved assignment pattern</option><option>Common rubric language</option><option>Course design decision</option><option>Accreditation note</option><option>Accessibility reminder</option><option>Student support language</option><option>AI usage policy language</option></select></label><label>Title<input id="memoryTitle" required></label><label>Entry<textarea id="memoryText" required></textarea></label><button class="primary-btn full" type="submit">Save memory entry</button></form><div class="panel"><div class="panel-header"><div><h2>Saved memory entries</h2><p>Reusable local knowledge for generation.</p></div></div><div id="memoryList" class="memory-list"></div></div></div></section>
-        <section class="page" id="export"><div class="page-heading"><div><p class="eyebrow">CANVAS EXPORT CENTER</p><h1>Simulated Canvas packaging</h1><p>Export selected modules, approved content, JSON, Markdown, Canvas-ready HTML, and an import checklist.</p></div><span class="status warning">No Canvas API yet</span></div><div class="two-column"><div class="panel"><div class="panel-header"><div><h2>Export selected modules</h2><p>Only approved/sent items are recommended.</p></div></div><div id="exportModules" class="checklist vertical"></div><button class="primary-btn full" id="exportSelectedBtn">Prepare selected export</button><button class="secondary-btn full" id="exportApprovedBtn">Export all approved content</button></div><div class="panel"><h2>Export actions</h2><div class="button-stack"><button class="secondary-btn" id="downloadJsonBtn">Download JSON</button><button class="secondary-btn" id="downloadMarkdownBtn">Download Markdown</button><button class="secondary-btn" id="copyHtmlBtn">Copy Canvas-ready HTML</button><button class="secondary-btn" id="checklistBtn">Generate Canvas import checklist</button></div><pre id="exportOutput" class="code-preview">Export output will appear here.</pre></div></div></section>
-        <section class="page" id="alignment"><div class="page-heading"><div><p class="eyebrow">ACCREDITATION & ALIGNMENT</p><h1>INF 125 alignment report</h1><p>Sample outcomes, module objectives, assignments, quizzes, discussions, gaps, and recommendations.</p></div><div><button class="secondary-btn" id="alignmentMdBtn">Export Markdown</button> <button class="secondary-btn" id="alignmentJsonBtn">Export JSON</button></div></div><div id="alignmentReport"></div></section>
+        <section class="page active" id="dashboard"></section>
+        <section class="page" id="settings"></section>
+        <section class="page" id="generator"></section>
+        <section class="page" id="spreadsheetImport"></section>
+        <section class="page" id="courseConfig"></section>
+        <section class="page" id="v6Settings"></section>
+        <section class="page" id="weeks"></section>
+        <section class="page" id="courseCalendar"></section>
+        <section class="page" id="activities"></section>
+        <section class="page" id="assessments"></section>
+        <section class="page" id="learningObjectives"></section>
+        <section class="page" id="aiDrafts"></section>
+        <section class="page" id="canvasItemMap"></section>
+        <section class="page" id="publishingLog"></section>
+        <section class="page" id="facultySignup"></section>
+        <section class="page" id="facultyFeedback"></section>
+        <section class="page" id="lists"></section>
       </div>
     </main>
   </div>
   <div class="toast" id="toast"><span>✓</span><p><strong id="toastTitle">Saved</strong><small id="toastMessage">Action complete</small></p></div>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" onerror="this.onerror=null;this.src='https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js';"></script>
   <script src="app.js"></script>
 </body>
 </html>
