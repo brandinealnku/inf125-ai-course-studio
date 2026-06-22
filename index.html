@@ -3,55 +3,44 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="AI Course Command Center V6 for INF 125 with Google Sheets, Apps Script, Gemini, and Canvas workflows.">
-  <title>AI Course Command Center V6 · INF 125</title>
+  <meta name="description" content="INF 125 Canvas Content Builder for Google Sheets, Gemini through Apps Script, and Canvas export.">
+  <title>INF 125 Canvas Content Builder</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="app-shell">
-    <aside class="sidebar" id="sidebar">
-      <div class="brand"><div class="brand-mark">V6</div><div><strong>AI Course</strong><span>Command Center</span></div></div>
-      <div class="workspace-switcher"><span class="workspace-logo">125</span><span><small>Google Sheet workspace</small><strong>INF 125 · Apps Script</strong></span></div>
-      <nav class="nav" id="nav" aria-label="Command center navigation"></nav>
-      <div class="sidebar-bottom"><div class="profile"><div class="avatar">DR</div><div><strong>Dr. Dana Reed</strong><small>Course builder</small></div></div></div>
-    </aside>
-    <main class="main">
-      <header class="topbar">
-        <button class="menu-btn" id="menuBtn" aria-label="Toggle menu">☰</button>
-        <div class="breadcrumb"><span id="breadcrumb">Dashboard</span><b id="sourceBadge">Local cache</b></div>
-        <div class="top-actions">
-          <button class="secondary-btn" id="syncFromSheetBtn">Sync from Google Sheet</button>
-          <button class="secondary-btn" id="saveAllBtn">Save changes to Sheet</button>
-          <button class="secondary-btn" id="backupBtn">Download Backup JSON</button>
-          <label class="secondary-btn file-btn">Restore Backup JSON<input id="restoreInput" type="file" accept="application/json"></label>
-        </div>
-      </header>
-      <div class="content">
-        <section class="page active" id="dashboard"></section>
-        <section class="page" id="settings"></section>
-        <section class="page" id="generator"></section>
-        <section class="page" id="spreadsheetImport"></section>
-        <section class="page" id="courseConfig"></section>
-        <section class="page" id="v6Settings"></section>
-        <section class="page" id="weeks"></section>
-        <section class="page" id="courseCalendar"></section>
-        <section class="page" id="activities"></section>
-        <section class="page" id="assessments"></section>
-        <section class="page" id="learningObjectives"></section>
-        <section class="page" id="aiDrafts"></section>
-        <section class="page" id="canvasItemMap"></section>
-        <section class="page" id="publishingLog"></section>
-        <section class="page" id="facultySignup"></section>
-        <section class="page" id="facultyFeedback"></section>
-        <section class="page" id="lists"></section>
+  <header class="hero">
+    <nav class="top-nav">
+      <div class="brand"><span>INF</span><div><strong>INF 125 Canvas Content Builder</strong><small>AI Literacy · NKU-inspired workflow</small></div></div>
+      <div class="nav-actions">
+        <button data-tab="dashboard">Dashboard</button>
+        <button data-tab="content">Course Content</button>
+        <button data-tab="builder">Module Builder</button>
+        <button data-tab="assignments">Major Assignments</button>
+        <button data-tab="preview">Canvas Preview</button>
+        <button data-tab="settings">Settings</button>
       </div>
-    </main>
-  </div>
-  <div class="toast" id="toast"><span>✓</span><p><strong id="toastTitle">Saved</strong><small id="toastMessage">Action complete</small></p></div>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" onerror="this.onerror=null;this.src='https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js';"></script>
+    </nav>
+    <section class="hero-copy">
+      <p class="eyebrow">GitHub Pages safe prototype</p>
+      <h1>Build, approve, and export INF 125 Canvas content from your Google Sheet.</h1>
+      <p>No Gemini API keys or Canvas tokens are stored in the front end. The browser calls Google Apps Script, which reads Google Sheets, calls Gemini, and sends approved content to Canvas.</p>
+      <div class="hero-buttons"><button class="gold" id="loadSampleBtn">Load sample demo data</button><button id="syncBtn">Load from Apps Script</button></div>
+    </section>
+  </header>
+  <main>
+    <section id="dashboard" class="tab active"></section>
+    <section id="content" class="tab"></section>
+    <section id="builder" class="tab"></section>
+    <section id="assignments" class="tab"></section>
+    <section id="preview" class="tab"></section>
+    <section id="settings" class="tab"></section>
+  </main>
+  <div id="modal" class="modal" aria-hidden="true"><div class="modal-card"><button class="close" id="closeModal">×</button><div id="modalContent"></div></div></div>
+  <div id="toast" class="toast"></div>
+  <script src="sample-data.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
