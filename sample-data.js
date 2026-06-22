@@ -1,0 +1,26 @@
+window.INF125_SAMPLE_DATA = {
+  course: {
+    title: "INF 125 AI Literacy",
+    genEd: "NKU General Education: Individual & Society",
+    outcomes: ["A2", "D3", "E3"],
+    slos: [
+      "Define and explain foundational AI concepts including artificial intelligence, prompting, machine learning, natural language processing, and neural networks.",
+      "Apply AI tools in discipline-specific or personal productivity contexts.",
+      "Evaluate the effectiveness, credibility, reliability, and bias of AI-generated content.",
+      "Critically analyze the ethical, legal, and social implications of AI in global and local contexts.",
+      "Integrate AI tools and resources in project-based learning to address a real-world problem."
+    ]
+  },
+  content: [
+    {id:"m1-page", week:1, unit:"Foundations", module:"What Is AI Literacy?", contentType:"Page", title:"Module 1 Overview: AI in Everyday Life", slos:"1,2", genEdOutcomes:"A2,D3", readings:"Intro to AI literacy; short explainer on ML/NLP", discussionQuestions:"Where do you already encounter AI? What counts as evidence?", smallAssignment:"AI use map reflection", curriculum:"Define core AI terms; compare tools; discuss local examples.", aiDraft:"", facultyStatus:"Needs Approval", sendToCanvas:false, canvasStatus:"Not Sent", points:"", dueDate:"TBD"},
+    {id:"m2-discussion", week:2, unit:"Prompting", module:"Prompting and Human Judgment", contentType:"Discussion", title:"Prompting as Communication", slos:"1,2,3", genEdOutcomes:"A2,E3", readings:"Prompt patterns; evaluating AI output", discussionQuestions:"How does prompt wording shape output quality and bias?", smallAssignment:"Revise one weak prompt into three stronger versions", curriculum:"Practice prompting, compare responses, document decisions.", aiDraft:"", facultyStatus:"Draft", sendToCanvas:false, canvasStatus:"Not Sent", points:"10", dueDate:"TBD"},
+    {id:"m3-assignment", week:3, unit:"Evaluation", module:"Credibility, Reliability, and Bias", contentType:"Assignment", title:"AI Output Credibility Check", slos:"3,4", genEdOutcomes:"D3,E3", readings:"Source checking and bias frameworks", discussionQuestions:"What makes an AI answer trustworthy enough to use?", smallAssignment:"Verify three claims in an AI response", curriculum:"Triangulate sources; identify hallucinations; discuss reliability.", aiDraft:"", facultyStatus:"Approved", sendToCanvas:true, canvasStatus:"Ready", points:"25", dueDate:"TBD"},
+    {id:"m4-page", week:4, unit:"Society", module:"Ethics, Law, and Social Impact", contentType:"Page", title:"Ethical AI in Global and Local Contexts", slos:"4", genEdOutcomes:"A2,D3,E3", readings:"AI ethics case studies", discussionQuestions:"Who benefits and who is harmed by an AI system?", smallAssignment:"Local impact case note", curriculum:"Analyze fairness, privacy, labor, and accountability.", aiDraft:"", facultyStatus:"Needs Approval", sendToCanvas:false, canvasStatus:"Not Sent", points:"", dueDate:"TBD"},
+    {id:"m5-assignment", week:5, unit:"Projects", module:"AI for Real-World Problem Solving", contentType:"Assignment", title:"Project Proposal: AI Tool for a Real Problem", slos:"2,5", genEdOutcomes:"A2,E3", readings:"Project-based learning guide", discussionQuestions:"What problem is appropriate for AI support?", smallAssignment:"Problem statement and stakeholder map", curriculum:"Scope a real-world problem; select responsible AI support.", aiDraft:"", facultyStatus:"Draft", sendToCanvas:false, canvasStatus:"Not Sent", points:"40", dueDate:"TBD"}
+  ],
+  majorAssignments: [
+    {title:"AI Implications Infographic", purpose:"Help students communicate key social, ethical, and practical implications of an AI technology to a public audience.", instructions:"Select an AI tool or application, research impacts, and design an accessible infographic with credible sources and clear claims.", deliverables:"One infographic, source list, and 250-word reflection.", rubric:"Accuracy 25; Gen Ed analysis 25; visual communication 20; source quality 20; reflection 10.", sloMapping:"1,3,4", genEdMapping:"A2,D3,E3", canvasSettings:"Assignment, 100 points, online upload, individual submission."},
+    {title:"Analyzing AI & Human Decision Making", purpose:"Build critical judgment about how AI output influences human choices.", instructions:"Compare a human decision process with AI-assisted recommendations and evaluate credibility, bias, and accountability.", deliverables:"900-1200 word analysis with evidence and appendix of prompts/outputs.", rubric:"Decision analysis 30; AI evaluation 30; ethical reasoning 20; writing and evidence 20.", sloMapping:"2,3,4", genEdMapping:"A2,D3,E3", canvasSettings:"Assignment, 100 points, online text entry or file upload."},
+    {title:"Portfolio Showcase / Final Project", purpose:"Demonstrate integrated AI literacy through a project addressing a real-world problem.", instructions:"Create a portfolio artifact, explain tool use, document iterations, and present responsible AI choices.", deliverables:"Portfolio page, final artifact, process log, and short presentation.", rubric:"Problem framing 20; AI integration 25; evaluation and ethics 25; communication 20; reflection 10.", sloMapping:"1,2,3,4,5", genEdMapping:"A2,D3,E3", canvasSettings:"Assignment, 150 points, media/file/url submission, final project group optional."}
+  ]
+};
