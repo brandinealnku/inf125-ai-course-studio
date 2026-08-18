@@ -25,6 +25,7 @@ jobs:
           node --check coursebuild/telemetry.js
           node --check coursebuild/version-publish.js
           node --check coursebuild/version-reconcile.js
+          node --check coursebuild/pilot.js
       - name: Check Apps Script syntax
         run: |
           cp coursebuild/apps-script-backend.gs /tmp/coursebuild-backend.js
@@ -34,11 +35,11 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           root=Path('coursebuild')
-          required=['index.html','styles.css','versions.css','telemetry.css','app.js','versions.js','telemetry.js','version-publish.js','version-reconcile.js','sample-course.js','apps-script-backend.gs','README.md']
+          required=['index.html','styles.css','versions.css','telemetry.css','pilot.css','app.js','versions.js','telemetry.js','version-publish.js','version-reconcile.js','pilot.js','sample-course.js','apps-script-backend.gs','README.md']
           missing=[n for n in required if not (root/n).exists()]
           assert not missing, f'Missing CourseBuild files: {missing}'
-          html=(root/'index.html').read_text(); app=(root/'app.js').read_text(); versions=(root/'versions.js').read_text(); telemetry=(root/'telemetry.js').read_text(); publish=(root/'version-publish.js').read_text(); reconcile=(root/'version-reconcile.js').read_text(); backend=(root/'apps-script-backend.gs').read_text()
-          for view in ['profile','plan','review','build','versions','telemetry','settings']:
+          html=(root/'index.html').read_text(); app=(root/'app.js').read_text(); versions=(root/'versions.js').read_text(); telemetry=(root/'telemetry.js').read_text(); publish=(root/'version-publish.js').read_text(); reconcile=(root/'version-reconcile.js').read_text(); pilot=(root/'pilot.js').read_text(); backend=(root/'apps-script-backend.gs').read_text()
+          for view in ['profile','plan','review','build','versions','telemetry','pilot','settings']:
               assert f'id="{view}"' in html, f'Missing view: {view}'
           for action in ['generateCourseArchitecture','importPdfArchitecture','generateItem','publishItem','previewVersionBuild','materializeVersion','reconcileVersionBuild']:
               assert action in backend, f'Missing backend action: {action}'
@@ -63,6 +64,13 @@ jobs:
           for event in ['architecture_generated','architecture_edit','item_generated','item_approved','canvas_publish','version_generated','failure']:
               assert event in telemetry, f'Missing telemetry event: {event}'
           assert 'estimatedSavedMinutes' in telemetry and 'manualMinutes' in telemetry, 'Missing benchmark calculation'
-          assert 'version-publish.js' in html and 'version-reconcile.js' in html, 'Version assets not loaded'
-          print('CourseBuild v0.8 smoke checks passed')
+          for task in ['baseline','source','architecture','content','canvas','version','feedback']:
+              assert f'id:"{task}"' in pilot, f'Missing external-pilot task: {task}'
+          for field in ['usefulness','ease','control','confidence','wouldUseAgain','wouldRecommend']:
+              assert field in pilot, f'Missing pilot-feedback field: {field}'
+          assert 'coursebuild-pilot-evidence-v1' in pilot, 'Missing standardized pilot evidence schema'
+          assert 'Do not enter student records' in pilot, 'Missing pilot sensitive-data warning'
+          assert 'pilot_completed' in pilot and 'pilot_exported' in pilot, 'Missing pilot telemetry hooks'
+          assert 'pilot.js' in html and 'pilot.css' in html, 'Pilot assets not loaded'
+          print('CourseBuild v0.9 smoke checks passed')
           PY
