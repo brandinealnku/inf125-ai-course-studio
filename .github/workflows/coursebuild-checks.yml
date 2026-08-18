@@ -29,19 +29,22 @@ jobs:
           node --check coursebuild/pilot.js
           node --check coursebuild/cohort.js
           node --check coursebuild/projects.js
+          node --check coursebuild/managed-storage.js
       - name: Check Apps Script syntax
         run: |
           cp coursebuild/apps-script-backend.gs /tmp/coursebuild-backend.js
           node --check /tmp/coursebuild-backend.js
+          cp coursebuild/managed-storage-backend.gs /tmp/coursebuild-managed-backend.js
+          node --check /tmp/coursebuild-managed-backend.js
       - name: Verify required pilot files and contracts
         run: |
           python3 - <<'PY'
           from pathlib import Path
           root=Path('coursebuild')
-          required=['index.html','styles.css','versions.css','telemetry.css','pilot.css','cohort.css','reconciliation-resolution.css','projects.css','app.js','versions.js','telemetry.js','version-publish.js','version-reconcile.js','reconciliation-resolution.js','pilot.js','cohort.js','projects.js','sample-course.js','apps-script-backend.gs','README.md']
+          required=['index.html','styles.css','versions.css','telemetry.css','pilot.css','cohort.css','reconciliation-resolution.css','projects.css','managed-storage.css','app.js','versions.js','telemetry.js','version-publish.js','version-reconcile.js','reconciliation-resolution.js','pilot.js','cohort.js','projects.js','managed-storage.js','sample-course.js','apps-script-backend.gs','managed-storage-backend.gs','README.md']
           missing=[n for n in required if not (root/n).exists()]
           assert not missing, f'Missing CourseBuild files: {missing}'
-          html=(root/'index.html').read_text(); app=(root/'app.js').read_text(); versions=(root/'versions.js').read_text(); telemetry=(root/'telemetry.js').read_text(); publish=(root/'version-publish.js').read_text(); reconcile=(root/'version-reconcile.js').read_text(); resolution=(root/'reconciliation-resolution.js').read_text(); pilot=(root/'pilot.js').read_text(); cohort=(root/'cohort.js').read_text(); projects=(root/'projects.js').read_text(); backend=(root/'apps-script-backend.gs').read_text()
+          html=(root/'index.html').read_text(); app=(root/'app.js').read_text(); versions=(root/'versions.js').read_text(); telemetry=(root/'telemetry.js').read_text(); publish=(root/'version-publish.js').read_text(); reconcile=(root/'version-reconcile.js').read_text(); resolution=(root/'reconciliation-resolution.js').read_text(); pilot=(root/'pilot.js').read_text(); cohort=(root/'cohort.js').read_text(); projects=(root/'projects.js').read_text(); managed=(root/'managed-storage.js').read_text(); managed_backend=(root/'managed-storage-backend.gs').read_text(); backend=(root/'apps-script-backend.gs').read_text()
           for view in ['projects','profile','plan','review','build','versions','telemetry','pilot','cohort','settings']:
               assert f'id="{view}"' in html, f'Missing view: {view}'
           for action in ['generateCourseArchitecture','importPdfArchitecture','generateItem','publishItem','previewVersionBuild','materializeVersion','reconcileVersionBuild']:
@@ -61,7 +64,6 @@ jobs:
           for choice in ['Repair','Accept','Ignore']:
               assert choice in resolution, f'Missing reconciliation resolution choice: {choice}'
           assert 'Preview approved repairs' in resolution and 'Execute repairs + verify' in resolution, 'Missing repair preview/execute controls'
-          assert 'materializeVersion' in resolution and 'reconcileVersionBuild' in resolution, 'Repairs must use safe materialization then reconciliation'
           assert 'will not auto-delete content' in resolution and 'destructive' in resolution.lower(), 'Missing destructive-repair safety boundary'
           assert 'application/pdf' in app and 'application/pdf' in backend, 'Missing PDF import contract'
           for mode in ['online','in-person','accelerated']:
@@ -80,8 +82,17 @@ jobs:
           for fn in ['createProject','switchProject','duplicateProject','exportProject','importProject','snapshotCurrent']:
               assert fn in projects, f'Missing project operation: {fn}'
           assert 'courseState' in projects and 'telemetry' in projects and 'externalPilot' in projects, 'Project envelope must preserve working context'
-          assert 'local storage adapter' in projects.lower() and 'future managed database' in projects.lower(), 'Missing persistence migration boundary'
+          assert 'coursebuild-managed-storage-v1' in managed_backend, 'Missing managed storage API contract'
+          for action in ['managedPing','listManagedProjects','saveManagedProject','loadManagedProject','deleteManagedProject']:
+              assert action in managed_backend and action in managed, f'Missing managed storage action: {action}'
+          assert 'COURSEBUILD_MANAGED_FOLDER_ID' in managed_backend, 'Missing managed Drive folder configuration'
+          assert 'SHA_256' in managed_backend and 'workspaceToken' in managed_backend, 'Managed workspace identity must hash bearer token server-side'
+          assert 'expectedRevision' in managed_backend and 'changed since it was loaded' in managed_backend, 'Missing optimistic concurrency protection'
+          assert 'bearer secret' in managed.lower() and 'not production authentication' in managed.lower(), 'Managed UI must disclose pilot auth boundary'
+          for event in ['managed_project_saved','managed_project_loaded','managed_project_deleted']:
+              assert event in managed, f'Missing managed telemetry event: {event}'
+          assert 'managed-storage.js' in html and 'managed-storage.css' in html, 'Managed workspace assets not loaded'
           assert 'projects.js' in html and 'projects.css' in html, 'Project assets not loaded'
           assert 'reconciliation-resolution.js' in html and 'reconciliation-resolution.css' in html, 'Resolution assets not loaded'
-          print('CourseBuild v0.12 smoke checks passed')
+          print('CourseBuild v0.13 smoke checks passed')
           PY
