@@ -7,63 +7,64 @@ CourseBuild is the generalized product layer extracted from the INF 125 Canvas C
 ## Pilot workflow
 
 1. Create or reopen a CourseBuild project.
-2. Define a reusable Course Profile.
-3. Import a syllabus/course plan by paste, text-family file, or PDF.
-4. Generate and edit a proposed module + LMS-object architecture.
-5. Explicitly approve the master architecture.
-6. Generate source-grounded content and approve each item.
-7. Build/update approved Master items in Canvas.
-8. Generate Online, In-Person, and Accelerated delivery plans from the approved master.
-9. Review the differences and approve each delivery version.
-10. Enter a separate target Canvas Course ID and run a dry-run preview.
-11. Materialize the approved version into that target Canvas shell.
-12. Run read-only reconciliation against the target shell.
-13. Resolve reconciliation discrepancies with explicit instructor decisions and re-verify.
-14. Run the guided External Pilot protocol and export a standardized evidence package.
-15. Import multiple evidence packages into Pilot Cohort to aggregate findings locally.
+2. Optionally connect a managed workspace and sync/reopen project envelopes across browsers/devices.
+3. Define a reusable Course Profile.
+4. Import a syllabus/course plan by paste, text-family file, or PDF.
+5. Generate and edit a proposed module + LMS-object architecture.
+6. Explicitly approve the master architecture.
+7. Generate source-grounded content and approve each item.
+8. Build/update approved Master items in Canvas.
+9. Generate Online, In-Person, and Accelerated delivery plans from the approved master.
+10. Review the differences and approve each delivery version.
+11. Enter a separate target Canvas Course ID and run a dry-run preview.
+12. Materialize the approved version into that target Canvas shell.
+13. Run read-only reconciliation against the target shell.
+14. Resolve reconciliation discrepancies with explicit instructor decisions and re-verify.
+15. Run the guided External Pilot protocol and export a standardized evidence package.
+16. Import multiple evidence packages into Pilot Cohort to aggregate findings locally.
+
+## v0.13 — Managed workspace sync
+
+CourseBuild now has an opt-in managed persistence path for `coursebuild-project-v1` envelopes while preserving v0.12 local projects as the default/fallback.
+
+### Separate managed-storage service
+
+`managed-storage-backend.gs` is designed to be deployed as a **separate Apps Script Web App** from the Canvas/Gemini backend. This keeps persistence lifecycle and security changes isolated from course generation/publishing.
+
+Configure the managed-storage Apps Script project with:
+
+- `COURSEBUILD_MANAGED_FOLDER_ID` — Google Drive folder used for managed project JSON files.
+- `COURSEBUILD_MANAGED_MAX_BYTES` — optional per-project JSON size limit; default is 900,000 characters.
+
+### Pilot workspace identity
+
+The browser generates or accepts a high-entropy `workspaceToken`. That token acts as a bearer secret for the pilot. The backend derives a SHA-256 hash and uses only the hash-derived workspace identifier in Drive filenames/metadata.
+
+This is intentionally **not production authentication**. Anyone with the managed endpoint URL and workspace key can access that workspace's managed project copies. Real account identity/sign-in must replace this before institutional SaaS use.
+
+### Managed project operations
+
+The managed API contract is `coursebuild-managed-storage-v1` and supports:
+
+- `managedPing`
+- `listManagedProjects`
+- `saveManagedProject`
+- `loadManagedProject`
+- `deleteManagedProject`
+
+The Projects workspace now supports connecting the managed endpoint, saving the current local project to managed storage, listing managed projects, reopening a managed project into the local adapter, and deleting only the managed copy.
+
+### Conflict protection
+
+Each managed envelope receives a `managedRevision`. Save requests provide `expectedRevision`; the backend rejects an overwrite when the server revision changed after the browser last loaded/saved that project. This is a first optimistic-concurrency guard rather than silent last-write-wins behavior.
+
+### Local-first compatibility
+
+Managed sync is optional. v0.12 local project create/switch/duplicate/import/export behavior still works without any server configuration. Loading a managed project restores it into the same local `coursebuild-project-v1` adapter, so the rest of CourseBuild does not need a second course model.
 
 ## v0.12 — Multi-course project persistence
 
-CourseBuild now supports multiple local projects instead of assuming a single browser-wide course state.
-
-### Projects workspace
-
-The new Projects view supports:
-
-- create project,
-- switch/reopen project,
-- rename project,
-- duplicate project,
-- delete local project,
-- export current project as JSON,
-- import a previously exported project.
-
-A project switch snapshots the current working context before restoring the selected project.
-
-### Project envelope
-
-Each local project uses the `coursebuild-project-v1` schema and stores:
-
-- CourseBuild course state,
-- Master/delivery-version state,
-- materialization/reconciliation/resolution state embedded in the course model,
-- local telemetry,
-- external-pilot state,
-- project metadata and timestamps.
-
-The current pilot continues to use the existing local state keys internally for compatibility with v0.1–v0.11. `projects.js` acts as a storage adapter around those keys so project switching can restore the complete working context without requiring a wholesale rewrite of the earlier product slices.
-
-### Legacy-state migration
-
-On first load after v0.12, the existing single-course browser state is automatically wrapped into the first CourseBuild project. Existing pilot work is therefore preserved rather than replaced with a blank project list.
-
-### Backup and migration path
-
-`Export current project` produces a `coursebuild-project-v1` JSON package. Import validates the schema and creates a separate local project, avoiding silent overwrite when an imported project ID already exists.
-
-The project envelope is intentionally provider-neutral. The browser implementation is a **local storage adapter**; a future managed database can replace that provider while retaining the CourseBuild project model and import/export contract.
-
-Exported projects may contain course-development content, telemetry, and pilot notes. They should not contain protected student information, grades, API keys, or secrets.
+CourseBuild supports multiple local projects instead of assuming a single browser-wide course state. The Projects view supports create, switch/reopen, rename, duplicate, local delete, export, and import. Each project preserves course state, Master/version/materialization/reconciliation/resolution state, telemetry, and external-pilot context. Existing pre-v0.12 state is automatically migrated into the first managed local project.
 
 ## v0.11 — Reconciliation resolution
 
@@ -103,22 +104,23 @@ Text-family files and PDFs can be imported; stable CourseBuild keys allow repeat
 
 ## Architecture
 
-- Static pilot UI: `index.html`, `styles.css`, `versions.css`, `telemetry.css`, `pilot.css`, `cohort.css`, `reconciliation-resolution.css`, `projects.css`, `app.js`, `versions.js`, `telemetry.js`, `version-publish.js`, `version-reconcile.js`, `reconciliation-resolution.js`, `pilot.js`, `cohort.js`, `projects.js`, `sample-course.js`
-- Secure pilot backend: `apps-script-backend.gs`
+- Static pilot UI: `index.html`, `styles.css`, `versions.css`, `telemetry.css`, `pilot.css`, `cohort.css`, `reconciliation-resolution.css`, `projects.css`, `managed-storage.css`, `app.js`, `versions.js`, `telemetry.js`, `version-publish.js`, `version-reconcile.js`, `reconciliation-resolution.js`, `pilot.js`, `cohort.js`, `projects.js`, `managed-storage.js`, `sample-course.js`
+- Course/AI/Canvas pilot backend: `apps-script-backend.gs`
+- Managed persistence pilot backend: `managed-storage-backend.gs` (separate Apps Script Web App)
 - AI: Gemini API
 - LMS: Canvas REST API
-- Persistence: project-aware local storage adapter with `coursebuild-project-v1` import/export; existing local course/telemetry/pilot keys remain compatibility targets during the migration stage
+- Persistence: local `coursebuild-project-v1` adapter plus optional Google Drive-backed managed workspace sync
 
 ## Product boundary
 
-The pilot is not yet institutional SaaS. Projects are still browser-local unless exported. CourseBuild still lacks user accounts, shared/team workspaces, managed server-side project persistence, Canvas OAuth, multi-tenant authentication, enterprise permissions, and production-grade audit logging.
+The pilot now supports cross-browser/device managed project copies, but it is **not yet institutional SaaS**. Workspace-token access is a pilot bearer-secret model, not user authentication. CourseBuild still lacks real account identity, Canvas OAuth, multi-tenant authorization, team/shared workspace permissions, enterprise retention controls, and production-grade audit logging.
 
 ## Automated checks
 
-`.github/workflows/coursebuild-checks.yml` verifies browser and Apps Script syntax plus the existing product contracts and the v0.12 project schema, storage keys, migration adapter, project operations, context preservation, and project assets.
+`.github/workflows/coursebuild-checks.yml` verifies browser and both Apps Script syntax paths plus existing product contracts, managed API actions, schema continuity, Drive-folder configuration, hashed workspace identity, optimistic revision checks, explicit non-production-auth disclosure, managed telemetry hooks, and asset loading.
 
 ## Next likely product slice
 
-- Managed server-side project persistence with user/project identity and migration from `coursebuild-project-v1`
-- Canvas OAuth and multi-tenant authentication after validation
-- Institutional admin/audit controls after buyer validation
+- Real sign-in/user identity and authorization boundary replacing workspace bearer tokens
+- Canvas OAuth tied to user/institution identity
+- Institutional workspace roles and audit controls after buyer validation
