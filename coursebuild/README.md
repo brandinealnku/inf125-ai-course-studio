@@ -1,73 +1,82 @@
 # CourseBuild
 
-Course architecture → working LMS.
+**Course architecture → working LMS.**
 
-CourseBuild is an ITSBAD Labs product that turns structured course plans into reviewable, publishable LMS content without hard-coding a specific institution or course.
+CourseBuild is the generalized product layer extracted from the INF 125 Canvas Content Builder prototype. The original course-specific implementation remains intact outside this folder.
 
-## MVP goal
+## Pilot workflow
 
-An instructor with a new course should be able to:
+1. Define a reusable Course Profile.
+2. Import a syllabus/course plan by paste, text-family file, or PDF.
+3. Generate a proposed module + LMS-object architecture.
+4. Generate source-grounded content for planned items.
+5. Review and explicitly approve each item.
+6. Run the readiness audit.
+7. Build or update approved items in Canvas.
 
-1. Create a course profile.
-2. Add learning outcomes and delivery rules.
-3. Define or import modules.
-4. Generate Canvas-ready pages, assignments, and discussions.
-5. Review and approve every generated item.
-6. Preview the intended Canvas build.
-7. Publish approved content through a secure backend.
-8. Create another delivery version without rebuilding from scratch.
+## v0.3
 
-## Product architecture
+### File import
 
-- `index.html` / `styles.css` / `app.js`: browser-based pilot UX.
-- `sample-course.js`: institution-neutral sample data.
-- `apps-script-backend.gs`: pilot secure backend for Gemini + Canvas.
-- Course-specific information lives in a Course Profile, not in product code.
-- Canvas is the first LMS connector, not the definition of the product.
+- `.txt`, `.md`, `.csv`, `.html`, and `.htm` files are read locally in the browser and retained as source text.
+- PDFs are sent as base64 to the configured Apps Script backend and passed to Gemini as `application/pdf` inline data.
+- The PDF architecture response includes a reusable `sourceDigest`, module proposal, and planned LMS items.
+- The browser pilot intentionally caps PDFs at 8 MB to keep Apps Script transport predictable.
 
-## Core concepts
+### Source grounding
 
-### Course Profile
+Architecture generation and item generation receive the Course Profile plus imported source/source digest. Prompts explicitly prohibit inventing institutional policies, required readings, dates, grading rules, outcomes, and assessments not supported by the supplied source.
 
-A profile contains course identity, description, outcomes, policies, audience, delivery mode, tone, and optional institution metadata.
+### Safe Canvas publishing
 
-### Course Plan
+Every planned item gets a stable CourseBuild key based on course code + CourseBuild item id. CourseBuild embeds that key in created Canvas content. On a later build it searches for an existing CourseBuild-created item and updates it rather than blindly creating another item.
 
-A plan contains modules and intended LMS objects. Each item moves through:
+The Canvas connector also checks whether the content is already attached to its module before adding another module item.
 
-`Planned → Draft → Needs Review → Approved → Ready → Sent`
+**Instructor approval remains mandatory.** `publishItem` rejects anything whose status is not `Approved`.
 
-### Human approval gate
+## Architecture
 
-CourseBuild never sends generated content to Canvas until the instructor explicitly approves it.
+- Static pilot UI: `index.html`, `styles.css`, `app.js`, `sample-course.js`
+- Secure pilot backend: `apps-script-backend.gs`
+- AI: Gemini API, with PDF document understanding and structured architecture output
+- LMS: Canvas REST API
+- Browser persistence: `localStorage` for pilot state only
 
-### Versions
+## Apps Script properties
 
-A master course may have multiple delivery versions such as:
+Configure these only in Apps Script Script Properties:
 
-- In Person
-- Online
-- Hybrid
-- Accelerated
-- Partner / Licensed
-- Custom
+```text
+GEMINI_API_KEY
+GEMINI_MODEL        # optional; defaults to gemini-2.5-flash
+CANVAS_API_TOKEN
+CANVAS_BASE_URL
+```
 
-Versions inherit from the master while tracking customization and sync state.
+Never place API keys or Canvas tokens in GitHub Pages or browser localStorage.
 
-## Pilot deployment
+## Backend actions
 
-The MVP keeps the proven prototype architecture:
+```text
+generateCourseArchitecture
+importPdfArchitecture
+generateItem
+publishItem
+```
 
-GitHub Pages → Google Apps Script → Gemini / Canvas APIs
+## Product boundary
 
-Secrets must remain server-side in Apps Script Script Properties:
+The pilot is not yet institutional SaaS. It does not yet provide multi-tenant accounts, Canvas OAuth, managed persistence, enterprise permissions, or production-grade audit logging. Those should follow validation rather than precede it.
 
-- `GEMINI_API_KEY`
-- `CANVAS_API_TOKEN`
-- `CANVAS_BASE_URL`
+## Automated checks
 
-This pilot architecture is intentionally replaceable by a managed multi-tenant backend before institutional SaaS deployment.
+`.github/workflows/coursebuild-checks.yml` performs syntax and structural smoke checks for the pilot on pushes/PRs that change CourseBuild.
 
-## Productization boundary
+## Next likely product slice
 
-The original INF 125 implementation remains outside this folder as the historical prototype and reference implementation. CourseBuild must not depend on INF 125, NKU, WE Lead CS, fixed SLOs, or fixed delivery versions.
+- Instructor editing of proposed modules/items before generation
+- Version generation + master/version sync
+- Pilot telemetry and benchmark capture
+- Managed multi-course persistence
+- Canvas OAuth after product validation
