@@ -18,59 +18,49 @@ CourseBuild is the generalized product layer extracted from the INF 125 Canvas C
 10. Materialize the approved version into that target Canvas shell.
 11. Run read-only reconciliation against the target shell.
 12. Run the guided External Pilot protocol and export a standardized evidence package.
+13. Import multiple evidence packages into Pilot Cohort to aggregate findings locally.
+
+## v0.10 — Pilot cohort analysis
+
+CourseBuild can now combine multiple `coursebuild-pilot-evidence-v1` exports into a local aggregate analysis without uploading those evidence files to a third-party analytics service.
+
+### Cohort import
+
+The Pilot Cohort view accepts multiple JSON files, rejects invalid JSON or mismatched schemas, and de-duplicates imported pilots by pilot ID. Imported evidence remains in browser memory for the current cohort-analysis session.
+
+### Aggregate measures
+
+The cohort view summarizes:
+
+- participant count,
+- average usefulness, ease, control, and confidence ratings,
+- yes-rate for willingness to use CourseBuild again,
+- yes-rate for willingness to recommend a pilot to a colleague,
+- median estimated manual time avoided,
+- recorded failure events,
+- reconciled target shells that were ready for instructor review.
+
+Estimated time avoided remains based on participant-supplied manual baselines compared with available local workflow/API timing. It is explicitly treated as pilot evidence rather than a production performance claim.
+
+### Segmentation
+
+Results are segmented by participant role and Canvas experience so early product signals can be compared across faculty, instructional designers, administrators, and beginner/intermediate/advanced Canvas users.
+
+### Qualitative themes
+
+The cohort analyzer extracts recurring words from the `friction` and `bestPart` responses to surface common language around pain points and perceived value. This is intentionally lightweight local text aggregation, not automated sentiment scoring or a claim that the themes are statistically significant.
+
+### Case-study summary + aggregate export
+
+CourseBuild generates a copyable case-study-ready paragraph that includes participant count, ratings, adoption intent, estimated time avoided, and failure count with a clear pilot-evidence disclaimer.
+
+`Export aggregate JSON` produces a `coursebuild-pilot-cohort-v1` package containing the aggregate summary, role/experience segments, and extracted friction/value themes.
 
 ## v0.9 — Structured external pilot
 
-CourseBuild now includes a guided product-validation workflow for testing with instructors, instructional designers, or academic administrators outside the original build context.
+CourseBuild includes a guided product-validation workflow for testing with instructors, instructional designers, or academic administrators outside the original build context.
 
-### Participant setup and privacy boundary
-
-The External Pilot captures a participant name/code, role, institution, discipline, and Canvas experience. The participant must acknowledge the pilot boundary before completion: use non-sensitive course material only, and do not enter student records, grades, protected student information, API keys, or secrets.
-
-Pilot data remains in browser `localStorage` until the participant chooses to export it.
-
-### Manual baseline
-
-Before completing the workflow, the participant records their own estimated manual effort for:
-
-- course architecture/planning,
-- drafting/reviewing an LMS item,
-- Canvas assembly per item,
-- delivery-version adaptation per item.
-
-Those participant-supplied values can feed the existing Pilot Evidence benchmark model. They are explicitly treated as baselines/assumptions rather than CourseBuild performance claims.
-
-### Guided tasks
-
-The standard protocol contains seven tasks:
-
-1. Capture the manual baseline.
-2. Import a real course source.
-3. Review and approve the architecture.
-4. Generate and approve content.
-5. Build or preview Canvas.
-6. Try one delivery version.
-7. Complete the pilot reflection.
-
-Each task records status plus start/completion timestamps.
-
-### Reflection
-
-The post-task reflection captures 1–5 ratings for usefulness, ease, control, and confidence plus willingness to use CourseBuild again, willingness to recommend a pilot, most valuable capability, biggest friction, missing functionality, and free-form notes.
-
-### Standardized evidence export
-
-`Export pilot evidence JSON` produces a `coursebuild-pilot-evidence-v1` package combining:
-
-- participant/pilot metadata,
-- manual baseline,
-- guided-task status and timestamps,
-- qualitative/quantitative feedback,
-- course summary,
-- delivery-version/materialization/reconciliation summaries,
-- local CourseBuild telemetry.
-
-This gives CourseBuild a repeatable external validation artifact instead of relying on interviews, screenshots, or anecdotal reactions alone.
+The External Pilot captures participant context, an explicit sensitive-data/privacy warning, participant-supplied manual baselines, seven guided tasks with timestamps, 1–5 usefulness/ease/control/confidence ratings, reuse/recommendation intent, qualitative feedback, and a standardized `coursebuild-pilot-evidence-v1` JSON export. Pilot data stays local until explicitly exported.
 
 ## v0.8 — Post-build target-shell reconciliation
 
@@ -98,23 +88,23 @@ Text-family files and PDFs can be imported; Gemini provides PDF document underst
 
 ## Architecture
 
-- Static pilot UI: `index.html`, `styles.css`, `versions.css`, `telemetry.css`, `pilot.css`, `app.js`, `versions.js`, `telemetry.js`, `version-publish.js`, `version-reconcile.js`, `pilot.js`, `sample-course.js`
+- Static pilot UI: `index.html`, `styles.css`, `versions.css`, `telemetry.css`, `pilot.css`, `cohort.css`, `app.js`, `versions.js`, `telemetry.js`, `version-publish.js`, `version-reconcile.js`, `pilot.js`, `cohort.js`, `sample-course.js`
 - Secure pilot backend: `apps-script-backend.gs`
 - AI: Gemini API
 - LMS: Canvas REST API
-- Browser persistence: `localStorage` for course state, pilot telemetry, and guided external-pilot state
+- Browser persistence: `localStorage` for course state, pilot telemetry, and guided external-pilot state; cohort files are analyzed locally in browser memory
 
 ## Product boundary
 
-The pilot is not yet institutional SaaS. It still lacks multi-tenant accounts, Canvas OAuth, managed persistence, enterprise permissions, and production-grade audit logging. External-pilot evidence stays local until explicitly exported, and the current protocol should use non-sensitive course content only.
+The pilot is not yet institutional SaaS. It still lacks multi-tenant accounts, Canvas OAuth, managed persistence, enterprise permissions, and production-grade audit logging. External-pilot evidence stays local until explicitly exported, cohort analysis stays local, and the current protocol should use non-sensitive course content only.
 
 ## Automated checks
 
-`.github/workflows/coursebuild-checks.yml` verifies browser and Apps Script syntax plus approval gates, version materialization/reconciliation contracts, external-pilot tasks, privacy warning, feedback fields, standardized evidence schema, and pilot telemetry hooks.
+`.github/workflows/coursebuild-checks.yml` verifies browser and Apps Script syntax plus approval gates, version materialization/reconciliation contracts, external-pilot tasks, privacy warning, feedback fields, standardized evidence schema, cohort schema validation, aggregate metrics, segmentation, theme extraction, evidence disclaimers, and cohort telemetry hooks.
 
 ## Next likely product slice
 
-- Pilot cohort/session management and aggregate evidence analysis
 - Instructor reconciliation workflow for intentionally accepting or repairing discrepancies
+- Pilot cohort/session persistence after validation justifies managed infrastructure
 - Managed multi-course persistence
 - Canvas OAuth and multi-tenant authentication after validation
