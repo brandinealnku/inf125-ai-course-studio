@@ -57,10 +57,12 @@
     }
   }
 
+  function currentState(){try{return JSON.parse(localStorage.getItem('coursebuild.pilot.v4')||'null');}catch(e){return null;}}
+
   function decoratePlan(){
     const host=document.querySelector('#plan');if(!host)return;
     host.querySelectorAll('label').forEach(l=>{if(l.childNodes[0]?.nodeValue?.includes('Course rules & preferences'))l.title='Examples: grading policies, accessibility expectations, tone, required teaching approaches, or AI-use rules.';});
-    const fallback=window.data?.source?.importMode==='local fallback';
+    const fallback=currentState()?.source?.importMode==='local fallback';
     let note=host.querySelector('.customer-notice[data-kind="fallback"]');
     if(fallback&&!note){note=document.createElement('div');note.className='customer-notice';note.dataset.kind='fallback';note.innerHTML='<strong>AI generation was not available.</strong><span>CourseBuild created a basic draft from headings in your source so you can keep working. This draft was not AI-analyzed. Review it carefully or try generation again when the AI service is available.</span>';host.prepend(note);} else if(!fallback&&note)note.remove();
   }
