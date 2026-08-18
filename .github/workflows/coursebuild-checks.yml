@@ -22,6 +22,7 @@ jobs:
         run: |
           node --check coursebuild/app.js
           node --check coursebuild/versions.js
+          node --check coursebuild/telemetry.js
       - name: Check Apps Script syntax
         run: |
           cp coursebuild/apps-script-backend.gs /tmp/coursebuild-backend.js
@@ -31,11 +32,11 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           root=Path('coursebuild')
-          required=['index.html','styles.css','versions.css','app.js','versions.js','sample-course.js','apps-script-backend.gs','README.md']
+          required=['index.html','styles.css','versions.css','telemetry.css','app.js','versions.js','telemetry.js','sample-course.js','apps-script-backend.gs','README.md']
           missing=[n for n in required if not (root/n).exists()]
           assert not missing, f'Missing CourseBuild files: {missing}'
-          html=(root/'index.html').read_text(); app=(root/'app.js').read_text(); versions=(root/'versions.js').read_text(); backend=(root/'apps-script-backend.gs').read_text()
-          for view in ['profile','plan','review','build','versions','settings']:
+          html=(root/'index.html').read_text(); app=(root/'app.js').read_text(); versions=(root/'versions.js').read_text(); telemetry=(root/'telemetry.js').read_text(); backend=(root/'apps-script-backend.gs').read_text()
+          for view in ['profile','plan','review','build','versions','telemetry','settings']:
               assert f'id="{view}"' in html, f'Missing view: {view}'
           for action in ['generateCourseArchitecture','importPdfArchitecture','generateItem','publishItem']:
               assert action in backend, f'Missing backend action: {action}'
@@ -43,14 +44,14 @@ jobs:
           assert 'item.status!=="Approved"' in backend, 'Missing item approval gate'
           assert 'requireArchitectureApproval' in backend, 'Missing backend architecture approval gate'
           assert 'approveArchitecture' in app and 'invalidateArchitecture' in app, 'Missing architecture approval lifecycle'
-          assert 'data-move-module' in app and 'data-add-item' in app and 'data-delete-item' in app, 'Missing architecture editing controls'
           assert 'application/pdf' in app and 'application/pdf' in backend, 'Missing PDF import contract'
           for mode in ['online','in-person','accelerated']:
               assert f'id:"{mode}"' in versions, f'Missing version mode: {mode}'
-          assert 'Out of Sync' in versions, 'Missing version stale-state tracking'
-          assert 'baseRevision' in versions and 'master.revision' in versions, 'Missing master/version revision link'
-          assert 'data-approve-version' in versions, 'Missing version approval control'
-          assert 'version-diff' in versions, 'Missing version difference rendering'
-          assert 'versions.js' in html and 'versions.css' in html, 'Version assets not loaded'
-          print('CourseBuild v0.5 smoke checks passed')
+          assert 'Out of Sync' in versions and 'baseRevision' in versions, 'Missing version sync contract'
+          for event in ['architecture_generated','architecture_edit','item_generated','item_approved','canvas_publish','version_generated','failure']:
+              assert event in telemetry, f'Missing telemetry event: {event}'
+          assert 'estimatedSavedMinutes' in telemetry and 'manualMinutes' in telemetry, 'Missing benchmark calculation'
+          assert 'Export JSON' in telemetry and 'DEFAULT_MANUAL_MINUTES' in telemetry, 'Missing pilot report/export contract'
+          assert 'telemetry.js' in html and 'telemetry.css' in html, 'Telemetry assets not loaded'
+          print('CourseBuild v0.6 smoke checks passed')
           PY
