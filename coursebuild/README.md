@@ -8,37 +8,46 @@ CourseBuild is the generalized product layer extracted from the INF 125 Canvas C
 
 1. Define a reusable Course Profile.
 2. Import a syllabus/course plan by paste, text-family file, or PDF.
-3. Generate a proposed module + LMS-object architecture.
-4. Edit the proposed architecture: rename/reorder modules, add/delete LMS items, change item types, purposes, and points.
-5. Explicitly approve the architecture.
-6. Generate source-grounded content for approved architecture items.
-7. Review and explicitly approve each generated item.
-8. Run the readiness audit.
-9. Build or update approved items in Canvas.
+3. Generate and edit a proposed module + LMS-object architecture.
+4. Explicitly approve the master architecture.
+5. Generate source-grounded content and approve each item.
+6. Run the readiness audit and build/update approved Canvas items.
+7. Generate Online, In-Person, and Accelerated delivery plans from the approved master.
+8. Review the explicit differences and approve each delivery version.
+9. When the master changes, regenerate any version marked Out of Sync.
+
+## v0.5 — Master course → delivery versions
+
+CourseBuild now treats one approved course as the authoritative master and stores delivery variants as traceable differences rather than disconnected copies.
+
+### Master revision lifecycle
+
+Each approved master architecture receives a revision. Generated delivery versions record the master revision they were based on. If the master architecture changes, previously generated variants are marked **Out of Sync** and any version approval is invalidated.
+
+### Built-in delivery variants
+
+- **Online** — asynchronous navigation, completion guidance, online interaction expectations, and discussion adjustments.
+- **In-Person** — live activity/facilitation guidance and between-class follow-up.
+- **Accelerated** — compressed pacing while preserving learning outcomes and assessment purpose.
+
+Each version includes editable adaptation rules, a generated list of differences from Master, generation time, approval state, and base master revision.
+
+### Version approval
+
+A version cannot be approved until it has been generated from the current master. Editing its adaptation rules returns it to review. Readiness also checks that any approved versions are still based on the current master.
+
+The pilot stores version plans as structured deltas and master snapshots in browser state. It intentionally does not yet publish delivery variants into separate Canvas course shells; that should follow validation of the version model.
 
 ## v0.4 — Editable architecture + architecture approval
 
-CourseBuild now treats the generated LMS structure as a proposal rather than an implicit decision. Instructors can edit the blueprint before any content is generated.
+CourseBuild treats AI-generated LMS structure as a proposal. Instructors can rename/reorder modules, add/delete modules and LMS items, change Page/Assignment/Discussion types, and edit titles, purposes, and points. Any architecture edit resets approval.
 
-### Architecture editing
+CourseBuild uses two explicit human gates:
 
-- Rename modules.
-- Reorder modules.
-- Add or delete modules.
-- Add or delete LMS items.
-- Change an item among Page, Assignment, and Discussion.
-- Edit item title, purpose, and points.
-
-Any architecture edit resets architecture approval. Approved content that depended on the old structure is moved back to review where appropriate.
-
-### Two-stage human gate
-
-CourseBuild now requires two explicit approvals:
-
-1. **Architecture approval** — confirms the planned module and LMS-object structure.
+1. **Architecture approval** — confirms the module and LMS-object structure.
 2. **Item approval** — confirms each generated content object.
 
-The browser blocks generation until architecture approval, and the Apps Script backend independently rejects both content generation and Canvas publishing when `architectureApproved` is not true. Canvas publishing still also rejects any item whose status is not `Approved`.
+The browser and backend both enforce architecture approval, and Canvas publishing also requires individual item approval.
 
 ## v0.3 — File import + safer Canvas publishing
 
@@ -50,7 +59,7 @@ The browser blocks generation until architecture approval, and the Apps Script b
 
 ## Architecture
 
-- Static pilot UI: `index.html`, `styles.css`, `app.js`, `sample-course.js`
+- Static pilot UI: `index.html`, `styles.css`, `versions.css`, `app.js`, `versions.js`, `sample-course.js`
 - Secure pilot backend: `apps-script-backend.gs`
 - AI: Gemini API, with PDF document understanding and structured architecture output
 - LMS: Canvas REST API
@@ -80,16 +89,15 @@ publishItem
 
 ## Product boundary
 
-The pilot is not yet institutional SaaS. It does not yet provide multi-tenant accounts, Canvas OAuth, managed persistence, enterprise permissions, or production-grade audit logging. Those should follow validation rather than precede it.
+The pilot is not yet institutional SaaS. It does not yet provide multi-tenant accounts, Canvas OAuth, managed persistence, enterprise permissions, production-grade audit logging, or direct version publishing to multiple Canvas shells. Those should follow validation rather than precede it.
 
 ## Automated checks
 
-`.github/workflows/coursebuild-checks.yml` checks browser JavaScript syntax, Apps Script syntax, required product contracts, architecture editing controls, architecture approval enforcement, item approval enforcement, PDF import, and Canvas idempotency markers.
+`.github/workflows/coursebuild-checks.yml` checks browser JavaScript syntax, version-workflow syntax, Apps Script syntax, architecture and item approval gates, PDF import, Canvas idempotency, delivery modes, version approval controls, master revision linkage, explicit difference rendering, and Out-of-Sync tracking.
 
 ## Next likely product slice
 
-- Master course → Online / In-Person / Accelerated version generation
-- Version differences, approval, and out-of-sync tracking
-- Pilot telemetry and benchmark capture
+- Pilot telemetry and benchmark capture: time saved, edits required, generation success, publish/update operations
+- Direct delivery-version materialization into separate Canvas shells after approval
 - Managed multi-course persistence
 - Canvas OAuth after product validation
