@@ -17,50 +17,45 @@ CourseBuild is the generalized product layer extracted from the INF 125 Canvas C
 9. Enter a separate target Canvas Course ID and run a dry-run preview.
 10. Materialize the approved version into that target Canvas shell.
 11. Run read-only reconciliation against the target shell.
-12. Run the guided External Pilot protocol and export a standardized evidence package.
-13. Import multiple evidence packages into Pilot Cohort to aggregate findings locally.
+12. Resolve reconciliation discrepancies with explicit instructor decisions and re-verify.
+13. Run the guided External Pilot protocol and export a standardized evidence package.
+14. Import multiple evidence packages into Pilot Cohort to aggregate findings locally.
+
+## v0.11 — Reconciliation resolution
+
+CourseBuild now closes the gap between detecting a Canvas discrepancy and deciding what should happen next.
+
+### Instructor decisions
+
+Every reconciliation discrepancy can be assigned one of three explicit choices:
+
+- **Repair** — queue a safe CourseBuild correction where the pilot can do so without destructive cleanup.
+- **Accept** — record the discrepancy as an intentional exception.
+- **Ignore** — defer the issue; the shell remains unresolved.
+
+Each decision is timestamped in the local resolution history and emits pilot telemetry.
+
+### Repair preview
+
+Before any write, `Preview approved repairs` summarizes the queued repair set and separates safe repairs from destructive/manual repairs. The preview itself does not change Canvas.
+
+Safe automated repair currently covers missing expected content, misplaced module membership, missing expected modules, and unexpectedly published CourseBuild content. CourseBuild repairs these by re-running the already-approved, idempotent delivery-version materialization and then re-running reconciliation.
+
+### Destructive safety boundary
+
+Duplicate CourseBuild objects and unexpected extra CourseBuild-owned objects may require deletion or choosing which object to keep. v0.11 deliberately does **not** auto-delete Canvas content. Those discrepancies remain manual/explicit decisions in the pilot.
+
+### Repair + re-verification
+
+`Execute repairs + verify` performs the approved non-destructive repair cycle, immediately re-runs `reconcileVersionBuild`, records created/updated counts, and shows the remaining raw issue count. A shell only returns to **Ready for instructor review** when the underlying reconciliation itself is clean.
 
 ## v0.10 — Pilot cohort analysis
 
-CourseBuild can now combine multiple `coursebuild-pilot-evidence-v1` exports into a local aggregate analysis without uploading those evidence files to a third-party analytics service.
-
-### Cohort import
-
-The Pilot Cohort view accepts multiple JSON files, rejects invalid JSON or mismatched schemas, and de-duplicates imported pilots by pilot ID. Imported evidence remains in browser memory for the current cohort-analysis session.
-
-### Aggregate measures
-
-The cohort view summarizes:
-
-- participant count,
-- average usefulness, ease, control, and confidence ratings,
-- yes-rate for willingness to use CourseBuild again,
-- yes-rate for willingness to recommend a pilot to a colleague,
-- median estimated manual time avoided,
-- recorded failure events,
-- reconciled target shells that were ready for instructor review.
-
-Estimated time avoided remains based on participant-supplied manual baselines compared with available local workflow/API timing. It is explicitly treated as pilot evidence rather than a production performance claim.
-
-### Segmentation
-
-Results are segmented by participant role and Canvas experience so early product signals can be compared across faculty, instructional designers, administrators, and beginner/intermediate/advanced Canvas users.
-
-### Qualitative themes
-
-The cohort analyzer extracts recurring words from the `friction` and `bestPart` responses to surface common language around pain points and perceived value. This is intentionally lightweight local text aggregation, not automated sentiment scoring or a claim that the themes are statistically significant.
-
-### Case-study summary + aggregate export
-
-CourseBuild generates a copyable case-study-ready paragraph that includes participant count, ratings, adoption intent, estimated time avoided, and failure count with a clear pilot-evidence disclaimer.
-
-`Export aggregate JSON` produces a `coursebuild-pilot-cohort-v1` package containing the aggregate summary, role/experience segments, and extracted friction/value themes.
+CourseBuild can combine multiple `coursebuild-pilot-evidence-v1` exports into a local aggregate analysis without uploading those evidence files to a third-party analytics service. It summarizes ratings, reuse/recommendation intent, median estimated manual time avoided, failures, reconciliation readiness, role/Canvas-experience segments, recurring friction/value terms, and exports `coursebuild-pilot-cohort-v1` with a pilot-evidence disclaimer.
 
 ## v0.9 — Structured external pilot
 
-CourseBuild includes a guided product-validation workflow for testing with instructors, instructional designers, or academic administrators outside the original build context.
-
-The External Pilot captures participant context, an explicit sensitive-data/privacy warning, participant-supplied manual baselines, seven guided tasks with timestamps, 1–5 usefulness/ease/control/confidence ratings, reuse/recommendation intent, qualitative feedback, and a standardized `coursebuild-pilot-evidence-v1` JSON export. Pilot data stays local until explicitly exported.
+CourseBuild includes a guided product-validation workflow with participant context, sensitive-data warning, participant-supplied manual baselines, seven guided tasks, ratings, adoption intent, qualitative feedback, and a standardized `coursebuild-pilot-evidence-v1` export. Pilot data stays local until explicitly exported.
 
 ## v0.8 — Post-build target-shell reconciliation
 
@@ -88,23 +83,23 @@ Text-family files and PDFs can be imported; Gemini provides PDF document underst
 
 ## Architecture
 
-- Static pilot UI: `index.html`, `styles.css`, `versions.css`, `telemetry.css`, `pilot.css`, `cohort.css`, `app.js`, `versions.js`, `telemetry.js`, `version-publish.js`, `version-reconcile.js`, `pilot.js`, `cohort.js`, `sample-course.js`
+- Static pilot UI: `index.html`, `styles.css`, `versions.css`, `telemetry.css`, `pilot.css`, `cohort.css`, `reconciliation-resolution.css`, `app.js`, `versions.js`, `telemetry.js`, `version-publish.js`, `version-reconcile.js`, `reconciliation-resolution.js`, `pilot.js`, `cohort.js`, `sample-course.js`
 - Secure pilot backend: `apps-script-backend.gs`
 - AI: Gemini API
 - LMS: Canvas REST API
-- Browser persistence: `localStorage` for course state, pilot telemetry, and guided external-pilot state; cohort files are analyzed locally in browser memory
+- Browser persistence: `localStorage` for course state, resolution decisions/history, pilot telemetry, and guided external-pilot state; cohort files are analyzed locally in browser memory
 
 ## Product boundary
 
-The pilot is not yet institutional SaaS. It still lacks multi-tenant accounts, Canvas OAuth, managed persistence, enterprise permissions, and production-grade audit logging. External-pilot evidence stays local until explicitly exported, cohort analysis stays local, and the current protocol should use non-sensitive course content only.
+The pilot is not yet institutional SaaS. It still lacks multi-tenant accounts, Canvas OAuth, managed persistence, enterprise permissions, and production-grade audit logging. External-pilot evidence stays local until explicitly exported, cohort analysis stays local, and reconciliation repair does not perform destructive automatic deletion.
 
 ## Automated checks
 
-`.github/workflows/coursebuild-checks.yml` verifies browser and Apps Script syntax plus approval gates, version materialization/reconciliation contracts, external-pilot tasks, privacy warning, feedback fields, standardized evidence schema, cohort schema validation, aggregate metrics, segmentation, theme extraction, evidence disclaimers, and cohort telemetry hooks.
+`.github/workflows/coursebuild-checks.yml` verifies browser and Apps Script syntax plus approval gates, version materialization/reconciliation contracts, Repair/Accept/Ignore resolution choices, repair preview and re-verification, destructive-operation safeguards, external-pilot evidence, and cohort-analysis contracts.
 
 ## Next likely product slice
 
-- Instructor reconciliation workflow for intentionally accepting or repairing discrepancies
-- Pilot cohort/session persistence after validation justifies managed infrastructure
-- Managed multi-course persistence
+- Managed multi-course/project persistence with a safe migration path from local pilot state
+- Pilot cohort/session persistence only after validation justifies managed infrastructure
 - Canvas OAuth and multi-tenant authentication after validation
+- Institutional admin/audit controls after buyer validation
