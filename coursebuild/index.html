@@ -8,15 +8,16 @@
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="versions.css" />
   <link rel="stylesheet" href="telemetry.css" />
+  <link rel="stylesheet" href="pilot.css" />
 </head>
 <body>
-  <header class="topbar"><div><p class="eyebrow">ITSBAD Labs</p><h1>CourseBuild</h1></div><span class="tag">Pilot MVP · v0.8</span></header>
+  <header class="topbar"><div><p class="eyebrow">ITSBAD Labs</p><h1>CourseBuild</h1></div><span class="tag">Pilot MVP · v0.9</span></header>
   <main>
-    <section class="hero"><p class="eyebrow">Course architecture → working LMS.</p><h2>Build the master. Adapt delivery. Verify what actually shipped.</h2><p>Import and approve a master course, create delivery variants, safely build in Canvas, reconcile the target shell against the approved plan, and capture evidence about the work removed.</p></section>
-    <nav class="steps" aria-label="CourseBuild workflow"><button data-view="profile" class="active">1. Course</button><button data-view="plan">2. Import + Plan</button><button data-view="review">3. Review</button><button data-view="build">4. Readiness + Build</button><button data-view="versions">5. Versions</button><button data-view="telemetry">6. Pilot Evidence</button><button data-view="settings">Settings</button></nav>
-    <section id="profile" class="view"></section><section id="plan" class="view hidden"></section><section id="review" class="view hidden"></section><section id="build" class="view hidden"></section><section id="versions" class="view hidden"></section><section id="telemetry" class="view hidden"></section><section id="settings" class="view hidden"></section>
+    <section class="hero"><p class="eyebrow">Course architecture → working LMS.</p><h2>Build the master. Adapt delivery. Verify it. Prove the value.</h2><p>Import and approve a master course, create delivery variants, safely build and reconcile Canvas shells, then run a structured external pilot that captures baseline effort, task evidence, and instructor feedback.</p></section>
+    <nav class="steps" aria-label="CourseBuild workflow"><button data-view="profile" class="active">1. Course</button><button data-view="plan">2. Import + Plan</button><button data-view="review">3. Review</button><button data-view="build">4. Readiness + Build</button><button data-view="versions">5. Versions</button><button data-view="telemetry">6. Pilot Evidence</button><button data-view="pilot">7. External Pilot</button><button data-view="settings">Settings</button></nav>
+    <section id="profile" class="view"></section><section id="plan" class="view hidden"></section><section id="review" class="view hidden"></section><section id="build" class="view hidden"></section><section id="versions" class="view hidden"></section><section id="telemetry" class="view hidden"></section><section id="pilot" class="view hidden"></section><section id="settings" class="view hidden"></section>
   </main>
   <dialog id="modal"><button id="closeModal" class="close" aria-label="Close">×</button><div id="modalBody"></div></dialog><div id="toast" role="status"></div>
-  <script src="sample-course.js"></script><script src="app.js"></script><script src="versions.js"></script><script src="telemetry.js"></script><script src="version-publish.js"></script><script src="version-reconcile.js"></script>
+  <script src="sample-course.js"></script><script src="app.js"></script><script src="versions.js"></script><script src="telemetry.js"></script><script src="version-publish.js"></script><script src="version-reconcile.js"></script><script src="pilot.js"></script>
 </body>
 </html>
