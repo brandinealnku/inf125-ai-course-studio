@@ -26,6 +26,7 @@ jobs:
           node --check coursebuild/version-publish.js
           node --check coursebuild/version-reconcile.js
           node --check coursebuild/pilot.js
+          node --check coursebuild/cohort.js
       - name: Check Apps Script syntax
         run: |
           cp coursebuild/apps-script-backend.gs /tmp/coursebuild-backend.js
@@ -35,11 +36,11 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           root=Path('coursebuild')
-          required=['index.html','styles.css','versions.css','telemetry.css','pilot.css','app.js','versions.js','telemetry.js','version-publish.js','version-reconcile.js','pilot.js','sample-course.js','apps-script-backend.gs','README.md']
+          required=['index.html','styles.css','versions.css','telemetry.css','pilot.css','cohort.css','app.js','versions.js','telemetry.js','version-publish.js','version-reconcile.js','pilot.js','cohort.js','sample-course.js','apps-script-backend.gs','README.md']
           missing=[n for n in required if not (root/n).exists()]
           assert not missing, f'Missing CourseBuild files: {missing}'
-          html=(root/'index.html').read_text(); app=(root/'app.js').read_text(); versions=(root/'versions.js').read_text(); telemetry=(root/'telemetry.js').read_text(); publish=(root/'version-publish.js').read_text(); reconcile=(root/'version-reconcile.js').read_text(); pilot=(root/'pilot.js').read_text(); backend=(root/'apps-script-backend.gs').read_text()
-          for view in ['profile','plan','review','build','versions','telemetry','pilot','settings']:
+          html=(root/'index.html').read_text(); app=(root/'app.js').read_text(); versions=(root/'versions.js').read_text(); telemetry=(root/'telemetry.js').read_text(); publish=(root/'version-publish.js').read_text(); reconcile=(root/'version-reconcile.js').read_text(); pilot=(root/'pilot.js').read_text(); cohort=(root/'cohort.js').read_text(); backend=(root/'apps-script-backend.gs').read_text()
+          for view in ['profile','plan','review','build','versions','telemetry','pilot','cohort','settings']:
               assert f'id="{view}"' in html, f'Missing view: {view}'
           for action in ['generateCourseArchitecture','importPdfArchitecture','generateItem','publishItem','previewVersionBuild','materializeVersion','reconcileVersionBuild']:
               assert action in backend, f'Missing backend action: {action}'
@@ -72,5 +73,14 @@ jobs:
           assert 'Do not enter student records' in pilot, 'Missing pilot sensitive-data warning'
           assert 'pilot_completed' in pilot and 'pilot_exported' in pilot, 'Missing pilot telemetry hooks'
           assert 'pilot.js' in html and 'pilot.css' in html, 'Pilot assets not loaded'
-          print('CourseBuild v0.9 smoke checks passed')
+          assert 'coursebuild-pilot-evidence-v1' in cohort, 'Cohort importer must validate pilot evidence schema'
+          for metric in ['medianSaved','usefulness','confidence','again','recommend','failures']:
+              assert metric in cohort, f'Missing cohort metric: {metric}'
+          assert 'groupBy' in cohort and 'canvasExperience' in cohort and 'participant.role' in cohort, 'Missing cohort segmentation'
+          assert 'friction' in cohort and 'bestPart' in cohort and 'tokenize' in cohort, 'Missing qualitative theme extraction'
+          assert 'coursebuild-pilot-cohort-v1' in cohort, 'Missing aggregate evidence schema'
+          assert 'pilot evidence, not production performance claims' in cohort, 'Missing case-study evidence disclaimer'
+          assert 'cohort_imported' in cohort and 'cohort_exported' in cohort, 'Missing cohort telemetry hooks'
+          assert 'cohort.js' in html and 'cohort.css' in html, 'Cohort assets not loaded'
+          print('CourseBuild v0.10 smoke checks passed')
           PY
