@@ -9,31 +9,44 @@ CourseBuild is the generalized product layer extracted from the INF 125 Canvas C
 1. Define a reusable Course Profile.
 2. Import a syllabus/course plan by paste, text-family file, or PDF.
 3. Generate a proposed module + LMS-object architecture.
-4. Generate source-grounded content for planned items.
-5. Review and explicitly approve each item.
-6. Run the readiness audit.
-7. Build or update approved items in Canvas.
+4. Edit the proposed architecture: rename/reorder modules, add/delete LMS items, change item types, purposes, and points.
+5. Explicitly approve the architecture.
+6. Generate source-grounded content for approved architecture items.
+7. Review and explicitly approve each generated item.
+8. Run the readiness audit.
+9. Build or update approved items in Canvas.
 
-## v0.3
+## v0.4 — Editable architecture + architecture approval
 
-### File import
+CourseBuild now treats the generated LMS structure as a proposal rather than an implicit decision. Instructors can edit the blueprint before any content is generated.
 
-- `.txt`, `.md`, `.csv`, `.html`, and `.htm` files are read locally in the browser and retained as source text.
-- PDFs are sent as base64 to the configured Apps Script backend and passed to Gemini as `application/pdf` inline data.
-- The PDF architecture response includes a reusable `sourceDigest`, module proposal, and planned LMS items.
-- The browser pilot intentionally caps PDFs at 8 MB to keep Apps Script transport predictable.
+### Architecture editing
 
-### Source grounding
+- Rename modules.
+- Reorder modules.
+- Add or delete modules.
+- Add or delete LMS items.
+- Change an item among Page, Assignment, and Discussion.
+- Edit item title, purpose, and points.
 
-Architecture generation and item generation receive the Course Profile plus imported source/source digest. Prompts explicitly prohibit inventing institutional policies, required readings, dates, grading rules, outcomes, and assessments not supported by the supplied source.
+Any architecture edit resets architecture approval. Approved content that depended on the old structure is moved back to review where appropriate.
 
-### Safe Canvas publishing
+### Two-stage human gate
 
-Every planned item gets a stable CourseBuild key based on course code + CourseBuild item id. CourseBuild embeds that key in created Canvas content. On a later build it searches for an existing CourseBuild-created item and updates it rather than blindly creating another item.
+CourseBuild now requires two explicit approvals:
 
-The Canvas connector also checks whether the content is already attached to its module before adding another module item.
+1. **Architecture approval** — confirms the planned module and LMS-object structure.
+2. **Item approval** — confirms each generated content object.
 
-**Instructor approval remains mandatory.** `publishItem` rejects anything whose status is not `Approved`.
+The browser blocks generation until architecture approval, and the Apps Script backend independently rejects both content generation and Canvas publishing when `architectureApproved` is not true. Canvas publishing still also rejects any item whose status is not `Approved`.
+
+## v0.3 — File import + safer Canvas publishing
+
+- `.txt`, `.md`, `.csv`, `.html`, and `.htm` files can be imported.
+- PDFs are sent to the configured secure Apps Script backend for Gemini document understanding.
+- A reusable source digest grounds downstream generation.
+- Stable CourseBuild keys let repeat builds update CourseBuild-created Canvas objects instead of blindly duplicating them.
+- Module membership is checked before another module item is added.
 
 ## Architecture
 
@@ -71,12 +84,12 @@ The pilot is not yet institutional SaaS. It does not yet provide multi-tenant ac
 
 ## Automated checks
 
-`.github/workflows/coursebuild-checks.yml` performs syntax and structural smoke checks for the pilot on pushes/PRs that change CourseBuild.
+`.github/workflows/coursebuild-checks.yml` checks browser JavaScript syntax, Apps Script syntax, required product contracts, architecture editing controls, architecture approval enforcement, item approval enforcement, PDF import, and Canvas idempotency markers.
 
 ## Next likely product slice
 
-- Instructor editing of proposed modules/items before generation
-- Version generation + master/version sync
+- Master course → Online / In-Person / Accelerated version generation
+- Version differences, approval, and out-of-sync tracking
 - Pilot telemetry and benchmark capture
 - Managed multi-course persistence
 - Canvas OAuth after product validation
