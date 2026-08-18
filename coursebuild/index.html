@@ -8,13 +8,13 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header class="topbar"><div><p class="eyebrow">ITSBAD Labs</p><h1>CourseBuild</h1></div><span class="tag">Pilot MVP · v0.4</span></header>
+  <header class="topbar"><div><p class="eyebrow">ITSBAD Labs</p><h1>CourseBuild</h1></div><span class="tag">Pilot MVP · v0.5</span></header>
   <main>
-    <section class="hero"><p class="eyebrow">Course architecture → working LMS.</p><h2>Bring the course plan. Shape the architecture. Build with control.</h2><p>Import source material, generate a proposed LMS blueprint, edit and approve the architecture, generate grounded content, review it, and know what is ready before Canvas changes.</p></section>
+    <section class="hero"><p class="eyebrow">Course architecture → working LMS.</p><h2>Build the master once. Adapt delivery without losing control.</h2><p>Import and approve a master course, generate source-grounded content, then create intentional Online, In-Person, and Accelerated delivery variants that stay traceable to the master.</p></section>
     <nav class="steps" aria-label="CourseBuild workflow"><button data-view="profile" class="active">1. Course</button><button data-view="plan">2. Import + Plan</button><button data-view="review">3. Review</button><button data-view="build">4. Readiness + Build</button><button data-view="versions">5. Versions</button><button data-view="settings">Settings</button></nav>
     <section id="profile" class="view"></section><section id="plan" class="view hidden"></section><section id="review" class="view hidden"></section><section id="build" class="view hidden"></section><section id="versions" class="view hidden"></section><section id="settings" class="view hidden"></section>
   </main>
   <dialog id="modal"><button id="closeModal" class="close" aria-label="Close">×</button><div id="modalBody"></div></dialog><div id="toast" role="status"></div>
-  <script src="sample-course.js"></script><script src="app.js"></script>
+  <script src="sample-course.js"></script><script src="app.js"></script><script src="versions.js"></script>
 </body>
 </html>
