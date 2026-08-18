@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="CourseBuild turns course architecture into a working LMS course." />
+  <title>CourseBuild · ITSBAD Labs</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">ITSBAD Labs</p>
+      <h1>CourseBuild</h1>
+    </div>
+    <span class="tag">Pilot MVP</span>
+  </header>
+
+  <main>
+    <section class="hero">
+      <p class="eyebrow">Course architecture → working LMS.</p>
+      <h2>Build the course once. Adapt it without starting over.</h2>
+      <p>CourseBuild turns a course plan into reviewable LMS objects, keeps a human approval gate, and prepares approved content for Canvas.</p>
+    </section>
+
+    <nav class="steps" aria-label="CourseBuild workflow">
+      <button data-view="profile" class="active">1. Course</button>
+      <button data-view="plan">2. Plan</button>
+      <button data-view="review">3. Review</button>
+      <button data-view="build">4. Build</button>
+      <button data-view="versions">5. Versions</button>
+      <button data-view="settings">Settings</button>
+    </nav>
+
+    <section id="profile" class="view"></section>
+    <section id="plan" class="view hidden"></section>
+    <section id="review" class="view hidden"></section>
+    <section id="build" class="view hidden"></section>
+    <section id="versions" class="view hidden"></section>
+    <section id="settings" class="view hidden"></section>
+  </main>
+
+  <dialog id="modal"><button id="closeModal" class="close" aria-label="Close">×</button><div id="modalBody"></div></dialog>
+  <div id="toast" role="status"></div>
+
+  <script src="sample-course.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
