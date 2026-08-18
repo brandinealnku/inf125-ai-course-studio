@@ -24,6 +24,7 @@ jobs:
           node --check coursebuild/versions.js
           node --check coursebuild/telemetry.js
           node --check coursebuild/version-publish.js
+          node --check coursebuild/version-reconcile.js
       - name: Check Apps Script syntax
         run: |
           cp coursebuild/apps-script-backend.gs /tmp/coursebuild-backend.js
@@ -33,13 +34,13 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           root=Path('coursebuild')
-          required=['index.html','styles.css','versions.css','telemetry.css','app.js','versions.js','telemetry.js','version-publish.js','sample-course.js','apps-script-backend.gs','README.md']
+          required=['index.html','styles.css','versions.css','telemetry.css','app.js','versions.js','telemetry.js','version-publish.js','version-reconcile.js','sample-course.js','apps-script-backend.gs','README.md']
           missing=[n for n in required if not (root/n).exists()]
           assert not missing, f'Missing CourseBuild files: {missing}'
-          html=(root/'index.html').read_text(); app=(root/'app.js').read_text(); versions=(root/'versions.js').read_text(); telemetry=(root/'telemetry.js').read_text(); publish=(root/'version-publish.js').read_text(); backend=(root/'apps-script-backend.gs').read_text()
+          html=(root/'index.html').read_text(); app=(root/'app.js').read_text(); versions=(root/'versions.js').read_text(); telemetry=(root/'telemetry.js').read_text(); publish=(root/'version-publish.js').read_text(); reconcile=(root/'version-reconcile.js').read_text(); backend=(root/'apps-script-backend.gs').read_text()
           for view in ['profile','plan','review','build','versions','telemetry','settings']:
               assert f'id="{view}"' in html, f'Missing view: {view}'
-          for action in ['generateCourseArchitecture','importPdfArchitecture','generateItem','publishItem','previewVersionBuild','materializeVersion']:
+          for action in ['generateCourseArchitecture','importPdfArchitecture','generateItem','publishItem','previewVersionBuild','materializeVersion','reconcileVersionBuild']:
               assert action in backend, f'Missing backend action: {action}'
           assert 'coursebuild-key:' in backend, 'Missing idempotency marker'
           assert 'item.status!=="Approved"' in backend, 'Missing item approval gate'
@@ -50,7 +51,11 @@ jobs:
           assert 'adaptVersionItem' in backend, 'Missing approved version adaptation step'
           assert 'previewVersionBuild' in publish and 'materializeVersion' in publish, 'Missing version publish UI actions'
           assert 'Dry-run preview' in publish and 'Build / update target shell' in publish, 'Missing dry-run/build controls'
-          assert 'version_build_preview' in publish and 'version_materialized' in publish, 'Missing version materialization telemetry'
+          assert 'reconcileVersionBuild' in reconcile and 'Verify target shell' in reconcile, 'Missing reconciliation UI action'
+          for signal in ['missing','duplicates','misplaced','unexpectedPublished','missingModules','unexpectedCourseBuildItems','readyForInstructorReview']:
+              assert signal in backend, f'Missing reconciliation signal: {signal}'
+          assert 'version_reconciled' in reconcile, 'Missing reconciliation telemetry'
+          assert 'read-only' in reconcile.lower(), 'Reconciliation must remain explicitly read-only'
           assert 'application/pdf' in app and 'application/pdf' in backend, 'Missing PDF import contract'
           for mode in ['online','in-person','accelerated']:
               assert f'id:"{mode}"' in versions, f'Missing version mode: {mode}'
@@ -58,6 +63,6 @@ jobs:
           for event in ['architecture_generated','architecture_edit','item_generated','item_approved','canvas_publish','version_generated','failure']:
               assert event in telemetry, f'Missing telemetry event: {event}'
           assert 'estimatedSavedMinutes' in telemetry and 'manualMinutes' in telemetry, 'Missing benchmark calculation'
-          assert 'version-publish.js' in html, 'Version publish asset not loaded'
-          print('CourseBuild v0.7 smoke checks passed')
+          assert 'version-publish.js' in html and 'version-reconcile.js' in html, 'Version assets not loaded'
+          print('CourseBuild v0.8 smoke checks passed')
           PY
