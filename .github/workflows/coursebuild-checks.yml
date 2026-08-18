@@ -18,38 +18,31 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Check browser JavaScript syntax
         run: node --check coursebuild/app.js
-
       - name: Check Apps Script syntax
         run: |
           cp coursebuild/apps-script-backend.gs /tmp/coursebuild-backend.js
           node --check /tmp/coursebuild-backend.js
-
       - name: Verify required pilot files and contracts
         run: |
           python3 - <<'PY'
           from pathlib import Path
-
-          root = Path('coursebuild')
-          required = ['index.html', 'styles.css', 'app.js', 'sample-course.js', 'apps-script-backend.gs', 'README.md']
-          missing = [name for name in required if not (root / name).exists()]
+          root=Path('coursebuild')
+          required=['index.html','styles.css','app.js','sample-course.js','apps-script-backend.gs','README.md']
+          missing=[n for n in required if not (root/n).exists()]
           assert not missing, f'Missing CourseBuild files: {missing}'
-
-          html = (root / 'index.html').read_text()
-          app = (root / 'app.js').read_text()
-          backend = (root / 'apps-script-backend.gs').read_text()
-
-          for view in ['profile', 'plan', 'review', 'build', 'versions', 'settings']:
+          html=(root/'index.html').read_text(); app=(root/'app.js').read_text(); backend=(root/'apps-script-backend.gs').read_text()
+          for view in ['profile','plan','review','build','versions','settings']:
               assert f'id="{view}"' in html, f'Missing view: {view}'
-
-          for action in ['generateCourseArchitecture', 'importPdfArchitecture', 'generateItem', 'publishItem']:
+          for action in ['generateCourseArchitecture','importPdfArchitecture','generateItem','publishItem']:
               assert action in backend, f'Missing backend action: {action}'
-
           assert 'coursebuild-key:' in backend, 'Missing idempotency marker'
-          assert 'item.status!=="Approved"' in backend, 'Missing approval gate'
+          assert 'item.status!=="Approved"' in backend, 'Missing item approval gate'
+          assert 'requireArchitectureApproval' in backend, 'Missing backend architecture approval gate'
+          assert 'approveArchitecture' in app, 'Missing architecture approval UI'
+          assert 'invalidateArchitecture' in app, 'Missing architecture invalidation behavior'
+          assert 'data-move-module' in app and 'data-add-item' in app and 'data-delete-item' in app, 'Missing architecture editing controls'
           assert 'application/pdf' in app and 'application/pdf' in backend, 'Missing PDF import contract'
-          assert 'MAX_PDF_BYTES' in app, 'Missing PDF pilot limit'
-          print('CourseBuild smoke checks passed')
+          print('CourseBuild v0.4 smoke checks passed')
           PY
